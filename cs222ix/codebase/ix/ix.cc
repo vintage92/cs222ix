@@ -136,7 +136,7 @@ void IX_PrintError (RC rc)
 {
 }
 
-bool PagedFileManager::FileExists(const char * fileName)
+bool IndexManager::FileExists(const char * fileName)
 {
     std::ifstream ifile(fileName);
     if(ifile)
