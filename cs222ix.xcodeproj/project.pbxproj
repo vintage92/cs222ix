@@ -8,15 +8,15 @@
 
 /* Begin PBXBuildFile section */
 		4A23AAC618C157AE00E6A631 /* cs222ix.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = 4A23AAC518C157AE00E6A631 /* cs222ix.1 */; };
-		4A23AAE518C157EF00E6A631 /* ix.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4A23AACE18C157EF00E6A631 /* ix.cc */; };
-		4A23AAE818C157EF00E6A631 /* makefile in Sources */ = {isa = PBXBuildFile; fileRef = 4A23AAD318C157EF00E6A631 /* makefile */; };
-		4A23AAE918C157EF00E6A631 /* makefile.inc in Sources */ = {isa = PBXBuildFile; fileRef = 4A23AAD418C157EF00E6A631 /* makefile.inc */; };
-		4A23AAEA18C157EF00E6A631 /* makefile in Sources */ = {isa = PBXBuildFile; fileRef = 4A23AAD618C157EF00E6A631 /* makefile */; };
-		4A23AAEB18C157EF00E6A631 /* pfm.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4A23AAD718C157EF00E6A631 /* pfm.cc */; };
-		4A23AAEC18C157EF00E6A631 /* rbfm.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4A23AAD918C157EF00E6A631 /* rbfm.cc */; };
-		4A23AAEE18C157EF00E6A631 /* makefile in Sources */ = {isa = PBXBuildFile; fileRef = 4A23AADE18C157EF00E6A631 /* makefile */; };
-		4A23AAEF18C157EF00E6A631 /* rm.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4A23AADF18C157EF00E6A631 /* rm.cc */; };
-		4A23AAF818C1593100E6A631 /* ixtest1.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4A23AAF718C1593100E6A631 /* ixtest1.cc */; };
+		4A374ACD18C2892A00EBE3AC /* ix.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4A374AB618C2892A00EBE3AC /* ix.cc */; };
+		4A374ACE18C2892A00EBE3AC /* ixtest1.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4A374AB818C2892A00EBE3AC /* ixtest1.cc */; };
+		4A374AD018C2892A00EBE3AC /* makefile in Sources */ = {isa = PBXBuildFile; fileRef = 4A374ABB18C2892A00EBE3AC /* makefile */; };
+		4A374AD118C2892A00EBE3AC /* makefile.inc in Sources */ = {isa = PBXBuildFile; fileRef = 4A374ABC18C2892A00EBE3AC /* makefile.inc */; };
+		4A374AD218C2892A00EBE3AC /* makefile in Sources */ = {isa = PBXBuildFile; fileRef = 4A374ABE18C2892A00EBE3AC /* makefile */; };
+		4A374AD318C2892A00EBE3AC /* pfm.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4A374ABF18C2892A00EBE3AC /* pfm.cc */; };
+		4A374AD418C2892A00EBE3AC /* rbfm.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4A374AC118C2892A00EBE3AC /* rbfm.cc */; };
+		4A374AD618C2892A00EBE3AC /* makefile in Sources */ = {isa = PBXBuildFile; fileRef = 4A374AC618C2892A00EBE3AC /* makefile */; };
+		4A374AD718C2892A00EBE3AC /* rm.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4A374AC718C2892A00EBE3AC /* rm.cc */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -35,22 +35,22 @@
 /* Begin PBXFileReference section */
 		4A23AAC018C157AE00E6A631 /* cs222ix */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = cs222ix; sourceTree = BUILT_PRODUCTS_DIR; };
 		4A23AAC518C157AE00E6A631 /* cs222ix.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = cs222ix.1; sourceTree = "<group>"; };
-		4A23AACE18C157EF00E6A631 /* ix.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ix.cc; sourceTree = "<group>"; };
-		4A23AACF18C157EF00E6A631 /* ix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ix.h; sourceTree = "<group>"; };
-		4A23AAD218C157EF00E6A631 /* ixtest_util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ixtest_util.h; sourceTree = "<group>"; };
-		4A23AAD318C157EF00E6A631 /* makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; path = makefile; sourceTree = "<group>"; };
-		4A23AAD418C157EF00E6A631 /* makefile.inc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.pascal; path = makefile.inc; sourceTree = "<group>"; };
-		4A23AAD618C157EF00E6A631 /* makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; path = makefile; sourceTree = "<group>"; };
-		4A23AAD718C157EF00E6A631 /* pfm.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = pfm.cc; sourceTree = "<group>"; };
-		4A23AAD818C157EF00E6A631 /* pfm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pfm.h; sourceTree = "<group>"; };
-		4A23AAD918C157EF00E6A631 /* rbfm.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = rbfm.cc; sourceTree = "<group>"; };
-		4A23AADA18C157EF00E6A631 /* rbfm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rbfm.h; sourceTree = "<group>"; };
-		4A23AADC18C157EF00E6A631 /* readme.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = readme.txt; sourceTree = "<group>"; };
-		4A23AADE18C157EF00E6A631 /* makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; path = makefile; sourceTree = "<group>"; };
-		4A23AADF18C157EF00E6A631 /* rm.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = rm.cc; sourceTree = "<group>"; };
-		4A23AAE018C157EF00E6A631 /* rm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rm.h; sourceTree = "<group>"; };
-		4A23AAE418C157EF00E6A631 /* test_util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = test_util.h; sourceTree = "<group>"; };
-		4A23AAF718C1593100E6A631 /* ixtest1.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ixtest1.cc; sourceTree = "<group>"; };
+		4A374AB618C2892A00EBE3AC /* ix.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ix.cc; sourceTree = "<group>"; };
+		4A374AB718C2892A00EBE3AC /* ix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ix.h; sourceTree = "<group>"; };
+		4A374AB818C2892A00EBE3AC /* ixtest1.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ixtest1.cc; sourceTree = "<group>"; };
+		4A374ABA18C2892A00EBE3AC /* ixtest_util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ixtest_util.h; sourceTree = "<group>"; };
+		4A374ABB18C2892A00EBE3AC /* makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; path = makefile; sourceTree = "<group>"; };
+		4A374ABC18C2892A00EBE3AC /* makefile.inc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.pascal; path = makefile.inc; sourceTree = "<group>"; };
+		4A374ABE18C2892A00EBE3AC /* makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; path = makefile; sourceTree = "<group>"; };
+		4A374ABF18C2892A00EBE3AC /* pfm.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = pfm.cc; sourceTree = "<group>"; };
+		4A374AC018C2892A00EBE3AC /* pfm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pfm.h; sourceTree = "<group>"; };
+		4A374AC118C2892A00EBE3AC /* rbfm.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = rbfm.cc; sourceTree = "<group>"; };
+		4A374AC218C2892A00EBE3AC /* rbfm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rbfm.h; sourceTree = "<group>"; };
+		4A374AC418C2892A00EBE3AC /* readme.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = readme.txt; sourceTree = "<group>"; };
+		4A374AC618C2892A00EBE3AC /* makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; path = makefile; sourceTree = "<group>"; };
+		4A374AC718C2892A00EBE3AC /* rm.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = rm.cc; sourceTree = "<group>"; };
+		4A374AC818C2892A00EBE3AC /* rm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rm.h; sourceTree = "<group>"; };
+		4A374ACC18C2892A00EBE3AC /* test_util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = test_util.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -83,56 +83,55 @@
 		4A23AAC218C157AE00E6A631 /* cs222ix */ = {
 			isa = PBXGroup;
 			children = (
-				4A23AACC18C157EF00E6A631 /* codebase */,
+				4A374AB418C2892A00EBE3AC /* codebase */,
 				4A23AAC518C157AE00E6A631 /* cs222ix.1 */,
 			);
 			path = cs222ix;
 			sourceTree = "<group>";
 		};
-		4A23AACC18C157EF00E6A631 /* codebase */ = {
+		4A374AB418C2892A00EBE3AC /* codebase */ = {
 			isa = PBXGroup;
 			children = (
-				4A23AACD18C157EF00E6A631 /* ix */,
-				4A23AAD418C157EF00E6A631 /* makefile.inc */,
-				4A23AAD518C157EF00E6A631 /* rbf */,
-				4A23AADC18C157EF00E6A631 /* readme.txt */,
-				4A23AADD18C157EF00E6A631 /* rm */,
+				4A374AB518C2892A00EBE3AC /* ix */,
+				4A374ABC18C2892A00EBE3AC /* makefile.inc */,
+				4A374ABD18C2892A00EBE3AC /* rbf */,
+				4A374AC418C2892A00EBE3AC /* readme.txt */,
+				4A374AC518C2892A00EBE3AC /* rm */,
 			);
-			name = codebase;
-			path = ../../codebase;
+			path = codebase;
 			sourceTree = "<group>";
 		};
-		4A23AACD18C157EF00E6A631 /* ix */ = {
+		4A374AB518C2892A00EBE3AC /* ix */ = {
 			isa = PBXGroup;
 			children = (
-				4A23AAF718C1593100E6A631 /* ixtest1.cc */,
-				4A23AACE18C157EF00E6A631 /* ix.cc */,
-				4A23AACF18C157EF00E6A631 /* ix.h */,
-				4A23AAD218C157EF00E6A631 /* ixtest_util.h */,
-				4A23AAD318C157EF00E6A631 /* makefile */,
+				4A374AB618C2892A00EBE3AC /* ix.cc */,
+				4A374AB718C2892A00EBE3AC /* ix.h */,
+				4A374AB818C2892A00EBE3AC /* ixtest1.cc */,
+				4A374ABA18C2892A00EBE3AC /* ixtest_util.h */,
+				4A374ABB18C2892A00EBE3AC /* makefile */,
 			);
 			path = ix;
 			sourceTree = "<group>";
 		};
-		4A23AAD518C157EF00E6A631 /* rbf */ = {
+		4A374ABD18C2892A00EBE3AC /* rbf */ = {
 			isa = PBXGroup;
 			children = (
-				4A23AAD618C157EF00E6A631 /* makefile */,
-				4A23AAD718C157EF00E6A631 /* pfm.cc */,
-				4A23AAD818C157EF00E6A631 /* pfm.h */,
-				4A23AAD918C157EF00E6A631 /* rbfm.cc */,
-				4A23AADA18C157EF00E6A631 /* rbfm.h */,
+				4A374ABE18C2892A00EBE3AC /* makefile */,
+				4A374ABF18C2892A00EBE3AC /* pfm.cc */,
+				4A374AC018C2892A00EBE3AC /* pfm.h */,
+				4A374AC118C2892A00EBE3AC /* rbfm.cc */,
+				4A374AC218C2892A00EBE3AC /* rbfm.h */,
 			);
 			path = rbf;
 			sourceTree = "<group>";
 		};
-		4A23AADD18C157EF00E6A631 /* rm */ = {
+		4A374AC518C2892A00EBE3AC /* rm */ = {
 			isa = PBXGroup;
 			children = (
-				4A23AADE18C157EF00E6A631 /* makefile */,
-				4A23AADF18C157EF00E6A631 /* rm.cc */,
-				4A23AAE018C157EF00E6A631 /* rm.h */,
-				4A23AAE418C157EF00E6A631 /* test_util.h */,
+				4A374AC618C2892A00EBE3AC /* makefile */,
+				4A374AC718C2892A00EBE3AC /* rm.cc */,
+				4A374AC818C2892A00EBE3AC /* rm.h */,
+				4A374ACC18C2892A00EBE3AC /* test_util.h */,
 			);
 			path = rm;
 			sourceTree = "<group>";
@@ -188,15 +187,15 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4A23AAEF18C157EF00E6A631 /* rm.cc in Sources */,
-				4A23AAEC18C157EF00E6A631 /* rbfm.cc in Sources */,
-				4A23AAEE18C157EF00E6A631 /* makefile in Sources */,
-				4A23AAEA18C157EF00E6A631 /* makefile in Sources */,
-				4A23AAE918C157EF00E6A631 /* makefile.inc in Sources */,
-				4A23AAE818C157EF00E6A631 /* makefile in Sources */,
-				4A23AAEB18C157EF00E6A631 /* pfm.cc in Sources */,
-				4A23AAE518C157EF00E6A631 /* ix.cc in Sources */,
-				4A23AAF818C1593100E6A631 /* ixtest1.cc in Sources */,
+				4A374AD718C2892A00EBE3AC /* rm.cc in Sources */,
+				4A374ACE18C2892A00EBE3AC /* ixtest1.cc in Sources */,
+				4A374AD418C2892A00EBE3AC /* rbfm.cc in Sources */,
+				4A374AD618C2892A00EBE3AC /* makefile in Sources */,
+				4A374AD218C2892A00EBE3AC /* makefile in Sources */,
+				4A374AD118C2892A00EBE3AC /* makefile.inc in Sources */,
+				4A374AD018C2892A00EBE3AC /* makefile in Sources */,
+				4A374AD318C2892A00EBE3AC /* pfm.cc in Sources */,
+				4A374ACD18C2892A00EBE3AC /* ix.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -304,6 +303,7 @@
 				4A23AACB18C157AE00E6A631 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
