@@ -95,6 +95,8 @@ RC IndexManager::closeFile(FileHandle &fileHandle)
 
 RC IndexManager::insertEntry(FileHandle &fileHandle, const Attribute &attribute, const void *key, const RID &rid)
 {
+    
+    
 	return -1;
 }
 
