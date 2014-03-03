@@ -19,6 +19,26 @@ using namespace std;
 
 typedef enum { InnerNode = 0, LeafNode } NodeType;
 
+class Superblock{
+public:
+    int init;
+    unsigned int root;
+    unsigned int nextPage;
+    unsigned int N;
+    unsigned int M;
+    AttrType keyType;
+    unsigned int freeSpace;
+    unsigned int freePageCount;
+    vector<unsigned int> freePages;
+    
+    FileHandle * fH;
+    
+    
+    
+    Superblock(FileHandle &fileHandle);
+    RC writeSuperblock();
+};
+
 class Node{
 
 public:
@@ -53,6 +73,8 @@ public:
     
     
     Node(FileHandle &fileHandle, unsigned int pageNumber, NodeType theNodeType, AttrType theKeyType);
+    
+    
 
     RC writeNode();
     
@@ -62,7 +84,6 @@ public:
     
     
 
-    ~Node();
     
     
     

@@ -8,6 +8,83 @@
 
 #include "node.h"
 
+Superblock::Superblock(FileHandle &fileHandle){
+    //Read in values from SuperBlock page '0'
+    
+    fH = &fileHandle;
+    
+    char * data = (char *) malloc(PAGE_SIZE);
+    fileHandle.readPage(0, data);
+    
+    unsigned int offset = 0;
+    memcpy(&init, data, 4);
+    offset += 4;
+    memcpy(&root, data + offset, 4);
+    offset += 4;
+    memcpy(&nextPage, data + offset, 4);
+    offset += 4;
+    memcpy(&N, data + offset, 4);
+    offset += 4;
+    memcpy(&M, data + offset, 4);
+    offset += 4;
+    memcpy(&keyType, data + offset, 4);
+    offset += 4;
+    memcpy(&freeSpace, data + offset, 4);
+    offset += 4;
+    memcpy(&freePageCount, data + offset, 4);
+    offset += 4;
+    
+    for (int i = 0; i < freePageCount; i++) {
+        //Read in freePageNumber
+        unsigned int cnt = 0;
+        memcpy(&cnt, data + offset, 4);
+        offset += 4;
+        
+        freePages.push_back(cnt);
+    }
+    
+    free (data);
+    
+}
+
+RC Superblock::writeSuperblock(){
+
+    char * data = (char *) malloc(PAGE_SIZE);
+    
+    //Set free page to array size * 4
+    freeSpace = freePageCount * 4;
+    
+    //Write values to data
+    unsigned int offset = 0;
+    memcpy(data, &init, 4);
+    offset += 4;
+    memcpy(data + offset, &root, 4);
+    offset += 4;
+    memcpy(data + offset, &nextPage, 4);
+    offset += 4;
+    memcpy(data + offset, &N, 4);
+    offset += 4;
+    memcpy(data + offset, &M, 4);
+    offset += 4;
+    memcpy(data + offset, &keyType, 4);
+    offset += 4;
+    memcpy(data + offset, &freeSpace, 4);
+    offset += 4;
+    memcpy(data + offset, &freePageCount, 4);
+    offset += 4;
+    
+    //Copy array values
+    for (int i = 0; i < freePages.size(); i++) {
+        memcpy(data + offset, &freePages[i], 4);
+        offset += 4;
+    }
+    
+    RC rc = fH->writePage(0, data);
+    
+    free(data);
+  
+    return rc;
+}
 
 Node::Node(FileHandle &fileHandle, unsigned int pageNumber, NodeType theNodeType, AttrType theKeyType){
 
@@ -236,6 +313,3 @@ RC Node::writeNode(){
 
 
 
-Node::~Node(){
-    
-}

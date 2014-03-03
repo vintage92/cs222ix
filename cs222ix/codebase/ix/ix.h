@@ -6,10 +6,11 @@
 #include <string>
 
 #include "../rbf/rbfm.h"
+#include "node.h"
 
 # define IX_EOF (-1)  // end of the index scan
 
-//Define Node and inner node structures
+
 
 
 

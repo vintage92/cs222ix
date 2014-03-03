@@ -33,18 +33,34 @@ RC IndexManager::createFile(const string &fileName)
     char * superBlock = (char *) malloc(PAGE_SIZE);
     
     //Initialize
-
+    unsigned int offset = 0;
+    
+    //Values
     int init = 0;
     unsigned int rootPage = 1;
-    unsigned int innerNodes = 0;
-    unsigned int leafNodes = 0;
+    unsigned int nextPage = 1;
+    unsigned int innerNodes = 0;//N
+    unsigned int leafNodes = 0;//M
     unsigned int keyType = 0;
+    unsigned int freeSpace = PAGE_SIZE - (4 * 8);
+    unsigned int freePageCount = 0;
     
     memcpy(superBlock, &init, 4);
-    memcpy(superBlock, &rootPage, 4);
-    memcpy(superBlock, &innerNodes, 4);
-    memcpy(superBlock, &leafNodes, 4);
-    memcpy(superBlock, &keyType, 4);
+    offset += 4;
+    memcpy(superBlock + offset, &rootPage, 4);
+    offset += 4;
+    memcpy(superBlock + offset, &nextPage, 4);
+    offset += 4;
+    memcpy(superBlock + offset, &innerNodes, 4);
+    offset += 4;
+    memcpy(superBlock + offset, &leafNodes, 4);
+    offset += 4;
+    memcpy(superBlock + offset, &keyType, 4);
+    offset += 4;
+    memcpy(superBlock + offset, &freeSpace, 4);
+    offset += 4;
+    memcpy(superBlock + offset, &freePageCount, 4);
+    offset += 4;
     
     fwrite(superBlock, PAGE_SIZE, 1, fp);
   
