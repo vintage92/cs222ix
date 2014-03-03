@@ -11,8 +11,9 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
 
-#include "../rbf/pfm.h"
+#include "../rbf/rbfm.h"
 
 using namespace std;
 
@@ -22,14 +23,44 @@ class Node{
 
 public:
     
-    unsigned int pageNum;
+    FileHandle* fH;
+    
     bool isRoot;
-    NodeType
+    NodeType type;
+    unsigned int pageNum; //Not in mem map
+    unsigned int numOfKeys;
+    AttrType keyType;
+    
+    
+    vector<float> floatKeys;
+    vector<int> intKeys;
+    vector<string> varcharKeys;
+    
+    //Offset recorders to certain key's or pointers
+    vector<unsigned int> toKeys;
+    vector<unsigned int> toPointers;
+    
+    //For an inner node
+    vector<unsigned int> pointers;
+    
+    //For a leaf node
+    vector<RID> rids;
+    
+    char * data;
     
     
     
     
-    Node(FileHandle &fileHandle, unsigned int pageNumber);
+    
+    Node(FileHandle &fileHandle, unsigned int pageNumber, NodeType theNodeType, AttrType theKeyType);
+
+    RC writeNode();
+    
+    RC readNode(unsigned int pageNumber);
+    
+    
+    
+    
 
     ~Node();
     
