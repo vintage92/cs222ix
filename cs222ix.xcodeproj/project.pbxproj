@@ -17,6 +17,7 @@
 		4A374AD418C2892A00EBE3AC /* rbfm.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4A374AC118C2892A00EBE3AC /* rbfm.cc */; };
 		4A374AD618C2892A00EBE3AC /* makefile in Sources */ = {isa = PBXBuildFile; fileRef = 4A374AC618C2892A00EBE3AC /* makefile */; };
 		4A374AD718C2892A00EBE3AC /* rm.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4A374AC718C2892A00EBE3AC /* rm.cc */; };
+		4A404F4218C41A890036F53C /* node.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4A404F4018C41A890036F53C /* node.cc */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -51,6 +52,8 @@
 		4A374AC718C2892A00EBE3AC /* rm.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = rm.cc; sourceTree = "<group>"; };
 		4A374AC818C2892A00EBE3AC /* rm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rm.h; sourceTree = "<group>"; };
 		4A374ACC18C2892A00EBE3AC /* test_util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = test_util.h; sourceTree = "<group>"; };
+		4A404F4018C41A890036F53C /* node.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = node.cc; sourceTree = "<group>"; };
+		4A404F4118C41A890036F53C /* node.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = node.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -109,6 +112,8 @@
 				4A374AB818C2892A00EBE3AC /* ixtest1.cc */,
 				4A374ABA18C2892A00EBE3AC /* ixtest_util.h */,
 				4A374ABB18C2892A00EBE3AC /* makefile */,
+				4A404F4018C41A890036F53C /* node.cc */,
+				4A404F4118C41A890036F53C /* node.h */,
 			);
 			path = ix;
 			sourceTree = "<group>";
@@ -195,6 +200,7 @@
 				4A374AD118C2892A00EBE3AC /* makefile.inc in Sources */,
 				4A374AD018C2892A00EBE3AC /* makefile in Sources */,
 				4A374AD318C2892A00EBE3AC /* pfm.cc in Sources */,
+				4A404F4218C41A890036F53C /* node.cc in Sources */,
 				4A374ACD18C2892A00EBE3AC /* ix.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

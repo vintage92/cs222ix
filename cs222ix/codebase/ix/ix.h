@@ -9,6 +9,10 @@
 
 # define IX_EOF (-1)  // end of the index scan
 
+//Define Node and inner node structures
+
+
+
 class IX_ScanIterator;
 
 class IndexManager {
