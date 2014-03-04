@@ -17,6 +17,15 @@
 
 using namespace std;
 
+typedef struct{
+	bool matchFound;
+	unsigned int pageNumber; //Of the leaf node that the match is found on, or to be inserted on
+	vector<unsigned int> trackList;
+    
+    FileHandle * fH;
+    
+} SearchResult;
+
 typedef enum { InnerNode = 0, LeafNode } NodeType;
 
 class Superblock{

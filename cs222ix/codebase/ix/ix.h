@@ -12,8 +12,6 @@
 
 
 
-
-
 class IX_ScanIterator;
 
 class IndexManager {
@@ -58,6 +56,15 @@ class IndexManager {
  private:
   static IndexManager *_index_manager;
     bool FileExists(const char * fileName);
+    
+    //Different search methods for each type of key
+    SearchResult search(string key);
+    SearchResult search(int key, FileHandle &fileHandle);
+    SearchResult search(float key);
+    SearchResult treeSearch(string key, SearchResult sr);
+    SearchResult treeSearch(int key, SearchResult sr);
+    SearchResult treeSearch(float key, SearchResult sr);
+    
 };
 
 class IX_ScanIterator {

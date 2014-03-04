@@ -134,6 +134,77 @@ RC IndexManager::scan(FileHandle &fileHandle,
 	return -1;
 }
 
+SearchResult IndexManager::search(string key){
+    SearchResult sr;
+    
+    
+    
+    
+    
+    return sr;
+}
+SearchResult IndexManager::search(int key, FileHandle &fileHandle){
+    //Read in the superblock and get root
+    Superblock sb = Superblock(fileHandle);
+    
+    
+    SearchResult sr;
+    sr.matchFound = false;
+    sr.pageNumber = sb.root;
+    sr.trackList.clear();
+    sr.fH = &fileHandle;
+    
+    return treeSearch(key, sr);
+}
+SearchResult IndexManager::search(float key){
+    SearchResult sr;
+    
+    
+    
+    return sr;
+}
+SearchResult IndexManager::treeSearch(string key, SearchResult sr){
+    
+    
+    
+    return sr;
+}
+SearchResult IndexManager::treeSearch(int key, SearchResult sr){
+    //Read in the page currently in sr
+    SearchResult cntsr = sr;
+    Node cntNode = Node(*cntsr.fH, cntsr.pageNumber, InnerNode, TypeInt);
+    //Read in the cntNode
+    cntNode.readNode();
+    //Add it to cntsr's tracklist
+    cntsr.trackList.push_back(cntsr.pageNumber);
+    
+    //Check if it's a leaf node
+    if (cntNode.type == LeafNode) {
+        //Check in the key array if it's present
+        for (int i = 0; i<cntNode.intKeys.size(); i++) {
+            if (cntNode.intKeys[i] == key) {
+                cntsr.matchFound = true;
+                break;
+            }
+        }
+        return cntsr;
+    }
+    
+    //Else if it's an inner node find the page pointer to the left
+    //of the key value that is greater than the key
+    
+    
+    
+    
+    return sr;
+}
+SearchResult IndexManager::treeSearch(float key, SearchResult sr){
+    
+    return sr;
+}
+
+
+
 IX_ScanIterator::IX_ScanIterator()
 {
 }
