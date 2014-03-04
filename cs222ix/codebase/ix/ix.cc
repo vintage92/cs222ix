@@ -112,34 +112,55 @@ RC IndexManager::closeFile(FileHandle &fileHandle)
 RC IndexManager::insertEntry(FileHandle &fileHandle, const Attribute &attribute, const void *key, const RID &rid)
 {
     
+    
     Superblock sb = Superblock(fileHandle);
     if (!sb.init) {
         //Create new node: root = true,
+        Node newRoot = Node(fileHandle, sb.nextPage, LeafNode, attribute.type);
+        newRoot.isRoot = true;
+        
         //Add key to the node
+        if (attribute.type == TypeInt) {
+            int target = 0;
+            memcpy(&target, key, 4);
+            addToLeafNode(newRoot, target, rid, 0, false);
+        }
+        else if(attribute.type == TypeReal){
+            
+        }
+        else{
+            
+        }
         //Update superblock
+        sb.root = newRoot.pageNum;
+        sb.init = true;
+        sb.nextPage++;
         //Write nodes
-        //Return 0
+        newRoot.writeNode();
+        sb.writeSuperblock();
+        
+        return 0;
+        
 
     }
     else{
         //Create searchResult object from Search Method
         if (attribute.type == TypeInt) {
-            //Search with int method
-            /*//If a match is found{
-                //Then add as an overflow insert (have separate method)
-             
-             
-             }
-             
+            int target = 0;
+            memcpy(&target, key, 4);
             
-            //else{
-                add key to returned node number
-                call update node
-             
-             }
-             
-             
-             */
+            SearchResult sr = search(target, fileHandle);
+            
+            Node cntNode = Node(fileHandle, sr.trackList[sr.trackList.size()-1], LeafNode, attribute.type);
+            cntNode.readNode();
+            //Add to the leaf node
+            addToLeafNode(cntNode, target, rid, 0, sr.matchFound);
+            cntNode.writeNode();
+            update(fileHandle, sr.trackList);
+            return 0;
+            
+            
+            
         }
         else if(attribute.type == TypeReal){
             
@@ -198,6 +219,10 @@ void IndexManager::update(FileHandle &fileHandle, vector<unsigned int> trackList
             if (cntNode.keyType == TypeInt) {
                 //Create a newNode empty
                 Node newNode = Node(fileHandle, sb.nextPage, cntNode.type, sb.keyType);
+                //Connect siblings
+                newNode.nextPage = cntNode.nextPage;
+                cntNode.nextPage = newNode.pageNum;
+                sb.nextPage++;
                 
                 //For all keys newPKI - end, copy into new Node
                 for (int i = newParentKeyIndex; i < cntNode.intKeys.size(); i++) {
@@ -205,10 +230,59 @@ void IndexManager::update(FileHandle &fileHandle, vector<unsigned int> trackList
                         addToInnerNode(newNode, cntNode.intKeys[i], cntNode.pointers[i]);
                     }
                     else{
-                        addToLeafNode(newNode, cntNode.intKeys[i], cntNode.rids[i], cntNode.overflows[i]);
+                        addToLeafNode(newNode, cntNode.intKeys[i], cntNode.rids[i], cntNode.overflows[i], true);
+                        //True because we want to copy over the overflow pages
                     }
                 }
+                newNode.writeNode();
                 
+                //Now we need to check if there is an available parent node to put this in
+                //That will be true as long as cntNode.root != true;
+                if (cntNode.isRoot == true) {
+                    
+                    //We need to create a new Root Node and add the new key to it
+                    //Then reroute the sb's root pointer to this newNode
+                    Node newRoot = Node(fileHandle, sb.nextPage, InnerNode, sb.keyType);
+                    sb.nextPage++;
+                    
+                    //Add the parent with it's left pointing to old node
+                    addToInnerNode(newRoot, cntNode.intKeys[newParentKeyIndex], cntNode.pageNum);
+                    //Add the right pointer pointing to newNode
+                    newRoot.pointers[1] = newNode.pageNum;
+                    
+                    //Now reroute the root
+                    cntNode.isRoot = false;
+                    newRoot.isRoot = true;
+                    sb.root = newRoot.pageNum;
+                    
+                    //Write back nodes
+                    cntNode.writeNode();
+                    newRoot.writeNode();
+                    sb.writeSuperblock();
+                    return;
+                    
+                    
+                }
+                else{
+                    //It must be either an inner node with a node above it, or a leaf node
+                    //With an inner node above it. Either way just add the parent key to the
+                    //Node above it and call update on it with tracklist-1
+                    trackList.erase(trackList.begin() + (trackList.size()-1));
+                    Node parentNode = Node(fileHandle, trackList[trackList.size()-1], InnerNode, sb.keyType);
+                    parentNode.readNode();
+                    addToInnerNode(parentNode, cntNode.intKeys[newParentKeyIndex], newNode.pageNum);
+                    //Make sure this add to innernode adds to pointer index + 1 of the key
+                    cntNode.intKeys.erase(cntNode.intKeys.begin() + newParentKeyIndex, cntNode.intKeys.begin() + (cntNode.intKeys.size()-1));
+                    cntNode.numOfKeys = cntNode.intKeys.size();
+                    
+                    cntNode.writeNode();
+                    newNode.writeNode();
+                    sb.writeSuperblock();
+                    //Return with call to update with tracklist
+                    return update(fileHandle, trackList);
+                  
+                    
+                }
                 
                 
             }
@@ -267,7 +341,8 @@ bool IndexManager::isValid(Node &node){
         }
     }
     
-    if (nodeSize > 4096) {
+    //TODO: RESETEETSETET THIS!!! when done using
+    if (nodeSize > 70) {
         return false;
     }
     
@@ -276,6 +351,7 @@ bool IndexManager::isValid(Node &node){
 }
 
 //Add helpers
+//Should add to the right of the key i think
 void IndexManager::addToInnerNode(Node &node, int key, unsigned int pagePtr){
     
 }
@@ -287,13 +363,87 @@ void IndexManager::addToInnerNode(Node &node, string key, unsigned int pagePtr){
 }
 
 //Leaf add helpers
-void IndexManager::addToLeafNode(Node &node, int key, RID rid, unsigned int overflow){
+void IndexManager::addToLeafNode(Node &node, int key, RID rid, unsigned int overflow, bool matchFound){
+    Superblock sb = Superblock(*node.fH);
+    //If matchFound is false then we write 0 to overflow position
+    if (!matchFound) {
+        //Add the key value, and a 0 for the overflow
+        int index = 0;
+        for (int i = 0; i < node.intKeys.size(); i++) {
+            if (key > node.intKeys[i]) {
+                index++;
+            }
+            else{
+                break;
+            }
+        }
+        node.intKeys.insert(node.intKeys.begin() + index, key);
+        node.rids.insert(node.rids.begin() + index, rid);
+        node.overflows.insert(node.overflows.begin() + index, 0);
+        node.numOfKeys++;
+        return;
+        
+        
+    }
+    //If true, then either copy key to the overflow (as long as its not 0)
+    else{
+        //Find the index for the key
+        int index = 0;
+        for (int i = 0; i < node.intKeys.size(); i++) {
+            if (key == node.intKeys[i]) {
+                break;
+            }
+            index++;
+        }
+        //Check what the overflow page number is
+        unsigned int oPageNum = node.overflows[index];
+        if (oPageNum == 0) {
+            //Create a new overflow Node
+            Node oPage = Node(*sb.fH, sb.nextPage, OverFlow, node.keyType);
+            sb.nextPage++;
+            addToLeafNode(oPage, key, rid, 0, 0);
+            oPage.writeNode();
+        }
+        else{
+            //read in the overflow Node
+            Node oPage = Node(*sb.fH, oPageNum, OverFlow, node.keyType);
+            oPage.readNode();
+            while (oPage.nextPage != 0) {
+                //Keep reading in and incrementing the oPages
+                oPage = Node(*sb.fH, oPage.nextPage, OverFlow, node.keyType);
+                oPage.readNode();
+            }
+            //Will exit with the last link in oPages
+            //Add the element to this oPage
+            addToLeafNode(oPage, key, rid, 0, false);
+            //If node is valid then persist it
+            if (isValid(oPage)) {
+                oPage.writeNode();
+                return;
+            }
+            else{
+                //Create a new oPage and add it to there
+                Node newPage = Node(*sb.fH, sb.nextPage, OverFlow, node.keyType);
+                sb.nextPage++;
+                addToLeafNode(newPage, key, rid, 0, 0);
+                newPage.writeNode();
+                return;
+            }
+            
+            
+        }
+        
+        
+    }
+
+    
+    
     
 }
-void IndexManager::addToLeafNode(Node &node, float key, RID rid, unsigned int overflow){
+void IndexManager::addToLeafNode(Node &node, float key, RID rid, unsigned int overflow, bool matchFound){
     
 }
-void IndexManager::addToLeafNode(Node &node, string key, RID rid, unsigned int overflow){
+void IndexManager::addToLeafNode(Node &node, string key, RID rid, unsigned int overflow, bool matchFound){
     
 }
 

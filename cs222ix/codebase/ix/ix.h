@@ -67,9 +67,9 @@ class IndexManager {
     void addToInnerNode(Node &node, string key, unsigned int pagePtr);
     
     //Leaf add helpers
-    void addToLeafNode(Node &node, int key, RID rid, unsigned int overflow);
-    void addToLeafNode(Node &node, float key, RID rid, unsigned int overflow);
-    void addToLeafNode(Node &node, string key, RID rid, unsigned int overflow);
+    void addToLeafNode(Node &node, int key, RID rid, unsigned int overflow, bool matchFound);
+    void addToLeafNode(Node &node, float key, RID rid, unsigned int overflow, bool matchFound);
+    void addToLeafNode(Node &node, string key, RID rid, unsigned int overflow, bool matchFound);
     
     
     

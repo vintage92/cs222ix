@@ -26,7 +26,7 @@ typedef struct{
     
 } SearchResult;
 
-typedef enum { InnerNode = 0, LeafNode } NodeType;
+typedef enum { InnerNode = 0, LeafNode, OverFlow } NodeType;
 
 class Superblock{
 public:
