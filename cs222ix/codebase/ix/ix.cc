@@ -37,7 +37,7 @@ RC IndexManager::createFile(const string &fileName)
     
     //Values
     int init = 0;
-    unsigned int rootPage = 1;
+    unsigned int rootPage = 0;
     unsigned int nextPage = 1;
     unsigned int innerNodes = 0;//N
     unsigned int leafNodes = 0;//M
@@ -111,6 +111,8 @@ RC IndexManager::closeFile(FileHandle &fileHandle)
 
 RC IndexManager::insertEntry(FileHandle &fileHandle, const Attribute &attribute, const void *key, const RID &rid)
 {
+    
+    
     
     
 	return -1;

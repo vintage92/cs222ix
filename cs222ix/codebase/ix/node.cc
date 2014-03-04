@@ -89,23 +89,22 @@ RC Superblock::writeSuperblock(){
 Node::Node(FileHandle &fileHandle, unsigned int pageNumber, NodeType theNodeType, AttrType theKeyType){
 
     fH = &fileHandle;
-    isRoot = false;
+    isRoot = 0;
     type = theNodeType;
     pageNum = pageNumber;
     
     //Initialize values
     numOfKeys = 0;
+    nextPage = 0;
     
 }
 
-RC Node::readNode(unsigned int pageNumber){
+RC Node::readNode(){
     
-    //Set page num
-    pageNum = pageNumber;
-    
+   
     //Allocate page Memory
     data = (char *) malloc(PAGE_SIZE);
-    fH->readPage(pageNumber, data);
+    fH->readPage(pageNum, data);
     
     //Read in values
     unsigned offset = 0;
@@ -117,6 +116,9 @@ RC Node::readNode(unsigned int pageNumber){
     offset += 4;
     memcpy(&keyType, data + offset, sizeof(int));
     offset += 4;
+    
+    //Read in nextPage value
+    memcpy(&nextPage, data + 4092, 4);
     
     
     
@@ -234,6 +236,18 @@ RC Node::writeNode(){
     data = (char *) malloc(PAGE_SIZE);
     
     unsigned int offset = 0;
+    
+    //Write in beginning values
+    memcpy(data, &isRoot, 4);
+    offset += 4;
+    memcpy(data + offset, &type, 4);
+    offset += 4;
+    memcpy(data + offset, &type, 4);
+    offset += 4;
+    memcpy(data + offset, &type, 4);
+    offset += 4;
+    memcpy(data + 4092, &nextPage, 4);
+    
     if (type == InnerNode) {
         
         for (int i = 0; i<numOfKeys; i++) {

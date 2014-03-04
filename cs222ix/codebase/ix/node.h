@@ -45,7 +45,7 @@ public:
     
     FileHandle* fH;
     
-    bool isRoot;
+    unsigned int isRoot; //0 menas it isnt, 1 means it is
     NodeType type;
     unsigned int pageNum; //Not in mem map
     unsigned int numOfKeys;
@@ -68,23 +68,22 @@ public:
     
     char * data;
     
+    unsigned int nextPage;
     
     
     
     
+    //Initializes a skeleton Node
     Node(FileHandle &fileHandle, unsigned int pageNumber, NodeType theNodeType, AttrType theKeyType);
     
     
-
+    //Persists node data to disk
     RC writeNode();
     
-    RC readNode(unsigned int pageNumber);
+    //Fills node with data
+    RC readNode();
     
-    
-    
-    
-
-    
+  
     
     
 };
