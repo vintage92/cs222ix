@@ -112,6 +112,48 @@ RC IndexManager::closeFile(FileHandle &fileHandle)
 RC IndexManager::insertEntry(FileHandle &fileHandle, const Attribute &attribute, const void *key, const RID &rid)
 {
     
+    Superblock sb = Superblock(fileHandle);
+    if (!sb.init) {
+        //Create new node: root = true,
+        //Add key to the node
+        //Update superblock
+        //Write nodes
+        //Return 0
+
+    }
+    else{
+        //Create searchResult object from Search Method
+        if (attribute.type == TypeInt) {
+            //Search with int method
+            /*//If a match is found{
+                //Then add as an overflow insert (have separate method)
+             
+             
+             }
+             
+            
+            //else{
+                add key to returned node number
+                call update node
+             
+             }
+             
+             
+             */
+        }
+        else if(attribute.type == TypeReal){
+            
+        }
+        else{
+            //Search with Varchar
+        
+        
+        }
+        
+        
+        
+    }
+    
     
     
     
@@ -132,6 +174,127 @@ RC IndexManager::scan(FileHandle &fileHandle,
     IX_ScanIterator &ix_ScanIterator)
 {
 	return -1;
+}
+
+void IndexManager::update(FileHandle &fileHandle, vector<unsigned int> trackList){
+    Superblock sb = Superblock(fileHandle);
+    
+    if (trackList.size() == 0) {
+        return;
+    }
+    else{
+        //Read in current Node
+        Node cntNode = Node(fileHandle, trackList[trackList.size()-1], InnerNode, TypeInt);
+        cntNode.readNode();
+        
+        //If the node isValid then return, we are done updating...Idea is that every node
+        //Above this must be valid as well
+        if (isValid(cntNode)) {
+            return;
+        }
+        else{//We must split
+            //Determine the key to promote
+            int newParentKeyIndex = cntNode.numOfKeys/2; //Int division auto returns floor
+            if (cntNode.keyType == TypeInt) {
+                //Create a newNode empty
+                Node newNode = Node(fileHandle, sb.nextPage, cntNode.type, sb.keyType);
+                
+                //For all keys newPKI - end, copy into new Node
+                for (int i = newParentKeyIndex; i < cntNode.intKeys.size(); i++) {
+                    if (cntNode.type == InnerNode) {
+                        addToInnerNode(newNode, cntNode.intKeys[i], cntNode.pointers[i]);
+                    }
+                    else{
+                        addToLeafNode(newNode, cntNode.intKeys[i], cntNode.rids[i], cntNode.overflows[i]);
+                    }
+                }
+                
+                
+                
+            }
+            else if (cntNode.keyType == TypeReal){
+                
+            }
+            else{
+                
+            }
+            
+            
+        }
+        
+        
+        
+    }
+    
+    
+}
+
+bool IndexManager::isValid(Node &node){
+    unsigned int nodeSize = 24; //Base for a node
+    //Calculate size of the node
+    
+    if (node.type == LeafNode) {
+        if (node.keyType == TypeInt || node.keyType == TypeReal) {
+            //Mulitply keySize * 3 * 4bytes each
+            nodeSize += (node.numOfKeys * 3 * 4);
+        }
+        else{
+            //Calc size of varChar keys
+            for (int i = 0; i < node.varcharKeys.size(); i++) {
+                unsigned int cntKey = node.varcharKeys[i].size() - 1;
+                cntKey += 8; //For RID and overflow page
+                nodeSize += cntKey;
+            }
+        }
+    }
+    else{
+        //Inner Node calc
+        if (node.keyType == TypeInt || node.keyType == TypeReal) {
+            //Mulitply keySize * 3 * 4bytes each
+            nodeSize += (node.numOfKeys * 2 * 4);
+            //Add 4 more for last page pointer
+            nodeSize += 4;
+        }
+        else{
+            //Calc size of varChar keys
+            for (int i = 0; i < node.varcharKeys.size(); i++) {
+                unsigned int cntKey = node.varcharKeys[i].size() - 1;
+                cntKey += 4; //For page number
+                nodeSize += cntKey;
+            }
+            //Add 4 for last page pointer
+            nodeSize += 4;
+        }
+    }
+    
+    if (nodeSize > 4096) {
+        return false;
+    }
+    
+    
+    return true;
+}
+
+//Add helpers
+void IndexManager::addToInnerNode(Node &node, int key, unsigned int pagePtr){
+    
+}
+void IndexManager::addToInnerNode(Node &node, float key, unsigned int pagePtr){
+    
+}
+void IndexManager::addToInnerNode(Node &node, string key, unsigned int pagePtr){
+    
+}
+
+//Leaf add helpers
+void IndexManager::addToLeafNode(Node &node, int key, RID rid, unsigned int overflow){
+    
+}
+void IndexManager::addToLeafNode(Node &node, float key, RID rid, unsigned int overflow){
+    
+}
+void IndexManager::addToLeafNode(Node &node, string key, RID rid, unsigned int overflow){
+    
 }
 
 SearchResult IndexManager::search(string key){
@@ -242,6 +405,38 @@ RC IX_ScanIterator::close()
 
 void IX_PrintError (RC rc)
 {
+    switch (rc) {
+        case 1:
+            fputs("Searching on Invalid Index", stderr);
+            break;
+        case 2:
+            fputs("Searching on Invalid Index", stderr);
+            break;
+        case 3:
+            fputs("Searching on Invalid Index", stderr);
+            break;
+        case 4:
+            fputs("Searching on Invalid Index", stderr);
+            break;
+        case 5:
+            fputs("Searching on Invalid Index", stderr);
+            break;
+        case 6:
+            fputs("Searching on Invalid Index", stderr);
+            break;
+        case 7:
+            fputs("Searching on Invalid Index", stderr);
+            break;
+        case 8:
+            fputs("Searching on Invalid Index", stderr);
+            break;
+        case 9:
+            fputs("Searching on Invalid Index", stderr);
+            break;
+            
+        default:
+            break;
+    }
 }
 
 bool IndexManager::FileExists(const char * fileName)

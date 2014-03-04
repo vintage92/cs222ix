@@ -76,6 +76,7 @@ public:
     
     //For a leaf node
     vector<RID> rids;
+    vector<unsigned int> overflows; //Keeps overflow pages for any duplicate keys
     
     char * data;
     

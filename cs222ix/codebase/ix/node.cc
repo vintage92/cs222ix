@@ -92,12 +92,14 @@ Node::Node(FileHandle &fileHandle, unsigned int pageNumber, NodeType theNodeType
     isRoot = 0;
     type = theNodeType;
     pageNum = pageNumber;
-    freeSpace = 24;
+    freeSpace = 4096 - 24;
     
     
     //Initialize values
     numOfKeys = 0;
     nextPage = 0;
+    overflows.clear();
+    
     
 }
 
@@ -147,7 +149,7 @@ RC Node::readNode(){
     
     
     
-    //If its an inner node, load the key's and page numbers in
+    //If its an inner node, load the key's and page numbers
     if (type == InnerNode) {
         
         for (int i = 0; i<numOfKeys; i++) {
@@ -197,7 +199,7 @@ RC Node::readNode(){
         
     }
     
-    //Else load in key value pairs from leaf node
+    //Else load in key value pairs from leaf node and overflow pages
     else{
         for (int i = 0; i<numOfKeys; i++) {
             
@@ -242,7 +244,13 @@ RC Node::readNode(){
             offset += 4;
             rids.push_back(cntID);
             
-        }//End key,value readin for loop
+            //Read in overflow page
+            unsigned int overFlow;
+            memcpy(&overFlow, data + offset, sizeof(int));
+            overflows.push_back(overFlow);
+            offset += 4;
+            
+        }//End key,value,overflow readin for loop
         
     }
     
@@ -348,6 +356,10 @@ RC Node::writeNode(){
             memcpy(data + offset, &rids[i].pageNum, sizeof(int));
             offset += 4;
             memcpy(data + offset, &rids[i].slotNum, sizeof(int));
+            offset += 4;
+            
+            //Write in overflow page number
+            memcpy(data + offset, &overflows[i], sizeof(int));
             offset += 4;
             
             

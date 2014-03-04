@@ -57,6 +57,22 @@ class IndexManager {
   static IndexManager *_index_manager;
     bool FileExists(const char * fileName);
     
+    //Update
+    void update(FileHandle &fileHandle, vector<unsigned int> trackList);
+    bool isValid(Node &node);
+    
+    //Add helpers
+    void addToInnerNode(Node &node, int key, unsigned int pagePtr);
+    void addToInnerNode(Node &node, float key, unsigned int pagePtr);
+    void addToInnerNode(Node &node, string key, unsigned int pagePtr);
+    
+    //Leaf add helpers
+    void addToLeafNode(Node &node, int key, RID rid, unsigned int overflow);
+    void addToLeafNode(Node &node, float key, RID rid, unsigned int overflow);
+    void addToLeafNode(Node &node, string key, RID rid, unsigned int overflow);
+    
+    
+    
     //Different search methods for each type of key
     SearchResult search(string key);
     SearchResult search(int key, FileHandle &fileHandle);
