@@ -60,6 +60,8 @@ public:
     unsigned int numOfKeys;
     AttrType keyType;
     
+    unsigned int freeSpace;
+    
     
     vector<float> floatKeys;
     vector<int> intKeys;

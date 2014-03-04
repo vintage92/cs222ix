@@ -92,6 +92,8 @@ Node::Node(FileHandle &fileHandle, unsigned int pageNumber, NodeType theNodeType
     isRoot = 0;
     type = theNodeType;
     pageNum = pageNumber;
+    freeSpace = 24;
+    
     
     //Initialize values
     numOfKeys = 0;
@@ -110,11 +112,33 @@ RC Node::readNode(){
     unsigned offset = 0;
     memcpy(&isRoot, data, sizeof(int));
     offset += 4;
-    memcpy(&type, data + offset, sizeof(int));
+    unsigned int temp = 0;
+    memcpy(&temp, data + offset, sizeof(int));
+    
+    if (temp == 0) {
+        type = InnerNode;
+    }
+    else{
+        type = LeafNode;
+    }
+    
     offset += 4;
     memcpy(&numOfKeys, data + offset, sizeof(int));
     offset += 4;
-    memcpy(&keyType, data + offset, sizeof(int));
+    memcpy(&temp, data + offset, sizeof(int));
+    if (temp == 0) {
+        keyType = TypeInt;
+    }
+    else if(temp == 1){
+        keyType = TypeReal;
+    }
+    else{
+        keyType = TypeVarChar;
+    }
+    offset += 4;
+    
+    //Read in amount of free space
+    memcpy(&freeSpace, data + offset, 4);
     offset += 4;
     
     //Read in nextPage value
@@ -240,12 +264,30 @@ RC Node::writeNode(){
     //Write in beginning values
     memcpy(data, &isRoot, 4);
     offset += 4;
-    memcpy(data + offset, &type, 4);
+    unsigned int temp = 0;
+    if (type == LeafNode) {
+        temp = 1;
+    }
+    memcpy(data + offset, &temp, 4);
     offset += 4;
-    memcpy(data + offset, &type, 4);
+    //Copy Number of Keys
+    memcpy(data + offset, &numOfKeys, 4);
     offset += 4;
-    memcpy(data + offset, &type, 4);
+    
+    temp = 0;
+    if (keyType == TypeReal) {
+        temp = 1;
+    }
+    else if( keyType == TypeVarChar){
+        temp = 2;
+    }
+    
+    memcpy(data + offset, &temp, 4);
     offset += 4;
+    
+    memcpy(data + offset, &freeSpace, 4);
+    offset += 4;
+    
     memcpy(data + 4092, &nextPage, 4);
     
     if (type == InnerNode) {

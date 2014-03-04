@@ -153,7 +153,9 @@ SearchResult IndexManager::search(int key, FileHandle &fileHandle){
     sr.pageNumber = sb.root;
     sr.trackList.clear();
     sr.fH = &fileHandle;
-    
+    if (!sb.init) {
+        return sr;
+    }
     return treeSearch(key, sr);
 }
 SearchResult IndexManager::search(float key){
@@ -175,6 +177,9 @@ SearchResult IndexManager::treeSearch(int key, SearchResult sr){
     Node cntNode = Node(*cntsr.fH, cntsr.pageNumber, InnerNode, TypeInt);
     //Read in the cntNode
     cntNode.readNode();
+    
+    cntsr.matchFound = false;
+    
     //Add it to cntsr's tracklist
     cntsr.trackList.push_back(cntsr.pageNumber);
     
@@ -192,10 +197,22 @@ SearchResult IndexManager::treeSearch(int key, SearchResult sr){
     
     //Else if it's an inner node find the page pointer to the left
     //of the key value that is greater than the key
+    else{
+        
+        for (int i = 0; i < cntNode.intKeys.size(); i++) {
+            if (key >= cntNode.intKeys[i]) {
+                sr.pageNumber = cntNode.pointers[i + 1];
+                return treeSearch(key, cntsr);
+            }
+            else{
+                sr.pageNumber = cntNode.pointers[i];
+                return treeSearch(key, cntsr);
+            }
+        }
+        
+    }
     
-    
-    
-    
+    cout << "Error in execution of tree search" << endl;
     return sr;
 }
 SearchResult IndexManager::treeSearch(float key, SearchResult sr){
