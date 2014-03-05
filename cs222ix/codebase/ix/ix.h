@@ -103,8 +103,7 @@ class IX_ScanIterator {
     
     FileHandle *fH;
     Attribute attr;
-    char * lowKey;
-    char * highKey;
+    
     bool lowinc;
     bool highinc;
     

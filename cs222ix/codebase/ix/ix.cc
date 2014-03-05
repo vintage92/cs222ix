@@ -268,6 +268,29 @@ RC IndexManager::scan(FileHandle &fileHandle,
             free(temp);
         }
     }
+    if (highKey == NULL) {
+        //Set manually
+        if(attribute.type == TypeInt){
+            ix_ScanIterator.intHKey = sb.M;
+            
+            
+        }
+        else if (attribute.type == TypeReal){
+            //TODO: Add search result sr
+            KeyStore ks = KeyStore(fileHandle);
+            ks.read();
+            ix_ScanIterator.floatHKey = ks.floatHKey;
+            
+            
+            
+        }
+        else{
+            //TODO: Add search result sr
+            KeyStore ks = KeyStore(fileHandle);
+            ks.read();
+            ix_ScanIterator.stringHKey = ks.stringHKey;
+        }
+    }
     if (ix_ScanIterator.lAlloc == false && ix_ScanIterator.hAlloc == false && lowKeyInclusive) {
         ix_ScanIterator.all = true; //Means return all elements in index
         //Set custom range
@@ -1026,13 +1049,7 @@ bool IX_ScanIterator::hasNext(){
 }
 RC IX_ScanIterator::close()
 {
-    //If alloc's true then free
-    if (lAlloc) {
-        free(lowKey);
-    }
-    if (hAlloc) {
-        free(highKey);
-    }
+    //Nothing to deallocate
 	return 0;
 }
 

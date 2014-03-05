@@ -305,7 +305,9 @@ int testCase_4A(const string &indexFileName, const Attribute &attribute)
         cout << "Failed Closing Scan..." << endl;
         goto error_close_index;
     }
-    /*//Try different scan ranges
+    //Try different scan ranges
+    char * loww = (char *) malloc(4);
+    char * highh = (char *) malloc(4);
     rc = indexManager->scan(fileHandle, attribute, NULL, NULL, false, false, ix_ScanIterator);
     while(ix_ScanIterator.getNextEntry(rid, &key) == success)
     {
@@ -316,7 +318,7 @@ int testCase_4A(const string &indexFileName, const Attribute &attribute)
      
     // Close Index
     rc = indexManager->closeFile(fileHandle);
-     */
+    
     if(rc == success)
     {
         cout << "Index File Closed Successfully!" << endl;
