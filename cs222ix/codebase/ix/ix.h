@@ -58,18 +58,18 @@ class IndexManager {
     bool FileExists(const char * fileName);
     
     //Update
-    void update(FileHandle &fileHandle, vector<unsigned int> trackList);
+    void update(FileHandle &fileHandle, vector<unsigned int> trackList, Node &tempNode);
     bool isValid(Node &node);
     
     //Add helpers
-    void addToInnerNode(Node &node, int key, unsigned int pagePtr);
-    void addToInnerNode(Node &node, float key, unsigned int pagePtr);
-    void addToInnerNode(Node &node, string key, unsigned int pagePtr);
+    void addToInnerNode(Node &node, int key, unsigned int leftPtr, unsigned int rightPtr);
+    void addToInnerNode(Node &node, float key, unsigned int leftPtr, unsigned int rightPtr);
+    void addToInnerNode(Node &node, string key, unsigned int leftPtr, unsigned int rightPtr);
     
     //Leaf add helpers
-    void addToLeafNode(Node &node, int key, RID rid, unsigned int overflow, bool matchFound);
-    void addToLeafNode(Node &node, float key, RID rid, unsigned int overflow, bool matchFound);
-    void addToLeafNode(Node &node, string key, RID rid, unsigned int overflow, bool matchFound);
+    void addToLeafNode(Node &node, int key, RID rid, unsigned int overflow, bool matchFound, bool copy);
+    void addToLeafNode(Node &node, float key, RID rid, unsigned int overflow, bool matchFound, bool copy);
+    void addToLeafNode(Node &node, string key, RID rid, unsigned int overflow, bool matchFound, bool copy);
     
     
     
