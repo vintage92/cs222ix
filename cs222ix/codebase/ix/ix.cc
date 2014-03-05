@@ -268,40 +268,39 @@ RC IndexManager::scan(FileHandle &fileHandle,
             free(temp);
         }
     }
-    if (ix_ScanIterator.lAlloc == false && ix_ScanIterator.hAlloc == false) {
+    if (ix_ScanIterator.lAlloc == false && ix_ScanIterator.hAlloc == false && lowKeyInclusive) {
         ix_ScanIterator.all = true; //Means return all elements in index
         //Set custom range
         if(attribute.type == TypeInt){
+            SearchResult sr = search(sb.N, fileHandle);
+            ix_ScanIterator.cntLeaf = sr.pageNumber;
+            ix_ScanIterator.cntIndex = 0;
             ix_ScanIterator.intLKey = sb.N;
             ix_ScanIterator.intHKey = sb.M;
             
             
         }
-        else if (attribute.type == TypeReal || attribute.type == TypeVarChar){
+        else if (attribute.type == TypeReal){
+            //TODO: Add search result sr
             KeyStore ks = KeyStore(fileHandle);
             ks.read();
             ix_ScanIterator.floatLKey = ks.floatLKey;
             ix_ScanIterator.floatHKey = ks.floatHKey;
-            ix_ScanIterator.stringLKey = ks.stringLKey;
-            ix_ScanIterator.stringHKey = ks.stringHKey;
+            
             
             
         }
+        else{
+            //TODO: Add search result sr
+            KeyStore ks = KeyStore(fileHandle);
+            ks.read();
+            ix_ScanIterator.stringLKey = ks.stringLKey;
+            ix_ScanIterator.stringHKey = ks.stringHKey;
+        }
+        return 0;
         
     }
-    if (highKey == NULL) {
-        ix_ScanIterator.intHKey = sb.M;
-    }
-    
-    if (lowKey == NULL) {
-        //Set start page to beginning page with index 0
-        SearchResult sr = search(sb.N, fileHandle);
-        ix_ScanIterator.intLKey = sb.N;
-        ix_ScanIterator.cntLeaf = sr.pageNumber;
-        ix_ScanIterator.cntIndex = 0;
-        return 0;
-    }
-    
+        
     //Find starting page number
     if(attribute.type == TypeInt){
         if (lowKeyInclusive) {
@@ -1027,7 +1026,14 @@ bool IX_ScanIterator::hasNext(){
 }
 RC IX_ScanIterator::close()
 {
-	return -1;
+    //If alloc's true then free
+    if (lAlloc) {
+        free(lowKey);
+    }
+    if (hAlloc) {
+        free(highKey);
+    }
+	return 0;
 }
 
 void IX_PrintError (RC rc)

@@ -305,9 +305,18 @@ int testCase_4A(const string &indexFileName, const Attribute &attribute)
         cout << "Failed Closing Scan..." << endl;
         goto error_close_index;
     }
-
+    /*//Try different scan ranges
+    rc = indexManager->scan(fileHandle, attribute, NULL, NULL, false, false, ix_ScanIterator);
+    while(ix_ScanIterator.getNextEntry(rid, &key) == success)
+    {
+        cout << rid.pageNum << " " << rid.slotNum << endl;
+        outRidPageNumSum += rid.pageNum;
+    }
+    rc = ix_ScanIterator.close();
+     
     // Close Index
     rc = indexManager->closeFile(fileHandle);
+     */
     if(rc == success)
     {
         cout << "Index File Closed Successfully!" << endl;
