@@ -229,7 +229,10 @@ int testCase_4A(const string &indexFileName, const Attribute &attribute)
     int inRidPageNumSum = 0;
     int outRidPageNumSum = 0;
     unsigned numOfTuples = 1000;
+    int loww = 50;
+    int highh = 1001;
 
+    rc = indexManager->destroyFile(indexFileName);
     // create index file
     rc = indexManager->createFile(indexFileName);
     if(rc == success)
@@ -306,9 +309,8 @@ int testCase_4A(const string &indexFileName, const Attribute &attribute)
         goto error_close_index;
     }
     //Try different scan ranges
-    char * loww = (char *) malloc(4);
-    char * highh = (char *) malloc(4);
-    rc = indexManager->scan(fileHandle, attribute, NULL, NULL, false, false, ix_ScanIterator);
+    
+    rc = indexManager->scan(fileHandle, attribute, &loww, &loww, false, false, ix_ScanIterator);
     while(ix_ScanIterator.getNextEntry(rid, &key) == success)
     {
         cout << rid.pageNum << " " << rid.slotNum << endl;
