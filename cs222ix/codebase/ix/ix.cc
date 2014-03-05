@@ -260,6 +260,10 @@ void IndexManager::update(FileHandle &fileHandle, vector<unsigned int> trackList
                     newRoot.isRoot = true;
                     sb.root = newRoot.pageNum;
                     
+                    //Delete old keys from tempNode
+                    tempNode.intKeys.erase(tempNode.intKeys.begin() + newParentKeyIndex, tempNode.intKeys.begin() + (tempNode.intKeys.size()));
+                    tempNode.numOfKeys = tempNode.intKeys.size();
+                    
                     //Write back nodes
                     tempNode.writeNode();
                     newRoot.writeNode();
