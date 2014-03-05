@@ -8,6 +8,65 @@
 
 #include "node.h"
 
+KeyStore::KeyStore(FileHandle &fileHandle){
+    fH = &fileHandle;
+}
+void KeyStore::read(){
+    //Read in values from page 1 of fileHandle
+    char * data = (char *) malloc(4096);
+    fH->readPage(1, data);
+    unsigned int offset = 0;
+    memcpy(&floatLKey, data, 4);
+    offset += 4;
+    memcpy(&floatHKey, data + offset, 4);
+    offset += 4;
+    
+    unsigned int length = 0;
+    memcpy(&length, data + offset, 4);
+    offset += 4;
+    char * value = (char *) malloc(length + 1);
+    memcpy(value, data + offset, length);
+    offset += length;
+    value[length] = NULL;
+    string temp (value);
+    stringLKey = temp;
+    
+    memcpy(&length, data + offset, 4);
+    char * value2 = (char *) malloc(length + 1);
+    offset += 4;
+    memcpy(value2, data + offset, length);
+    value2[length] = NULL;
+    string temp2 (value2);
+    stringHKey = temp2;
+    
+    free(data);
+    free(value);
+    free(value2);
+    
+    
+    
+}
+void KeyStore::write(){
+    char * data = (char *) malloc(4096);
+    unsigned int offset = 0;
+    memcpy(data, &floatLKey, 4);
+    offset += 4;
+    memcpy(data + offset, &floatHKey, 4);
+    offset += 4;
+    
+    memcpy(data + offset, stringLKey.c_str(), stringLKey.size() - 1);
+    offset += stringLKey.size() - 1;
+    memcpy(data + offset, stringHKey.c_str(), stringHKey.size() - 1);
+    offset += stringHKey.size() - 1;
+    
+    fH->writePage(1, data);
+    free(data);
+    
+}
+
+
+
+
 Superblock::Superblock(FileHandle &fileHandle){
     //Read in values from SuperBlock page '0'
     

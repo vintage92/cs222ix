@@ -82,14 +82,60 @@ class IndexManager {
     SearchResult treeSearch(float key, SearchResult sr);
     
 };
-
+/*
+ if (attr.type == TypeInt) {
+ 
+ }
+ else if (attr.type == TypeReal){
+ 
+ }
+ else{
+ 
+ }
+ */
 class IX_ScanIterator {
  public:
   IX_ScanIterator();  							// Constructor
   ~IX_ScanIterator(); 							// Destructor
 
   RC getNextEntry(RID &rid, void *key);  		// Get next matching entry
-  RC close();             						// Terminate index scan
+  RC close();                                   // Terminate index scan
+    
+    FileHandle *fH;
+    Attribute attr;
+    char * lowKey;
+    char * highKey;
+    bool lowinc;
+    bool highinc;
+    
+    bool lAlloc;
+    bool hAlloc;
+    bool all;
+    
+    int intLKey;
+    float floatLKey;
+    string stringLKey;
+    
+    int intHKey;
+    float floatHKey;
+    string stringHKey;
+    
+    //Placeholders
+    unsigned int cntLeaf;
+    int cntIndex;
+    unsigned int cntOver;
+    int overIndex;
+    
+    bool onOverFlow;
+    
+    //Tells whether there is even a valid range to search
+    //In the tree, if false, getNext auto returns -1
+    bool search;
+private:
+    bool hasNext();
+    
+    
+    
 };
 
 // print out the error message for a given return code

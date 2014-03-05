@@ -38,7 +38,7 @@ RC IndexManager::createFile(const string &fileName)
     //Values
     int init = 0;
     unsigned int rootPage = 0;
-    unsigned int nextPage = 1;
+    unsigned int nextPage = 2;
     unsigned int innerNodes = 0;//N
     unsigned int leafNodes = 0;//M
     unsigned int keyType = 0;
@@ -63,6 +63,14 @@ RC IndexManager::createFile(const string &fileName)
     offset += 4;
     
     fwrite(superBlock, PAGE_SIZE, 1, fp);
+    
+    fseek(fp, PAGE_SIZE, SEEK_SET);
+    
+    //Write a blank 2nd page to store float and char * min and max key values
+    memset(superBlock, 0, 4096);
+    fwrite(superBlock, PAGE_SIZE, 1, fp);
+    
+    free(superBlock);
   
     if(fclose(fp)){
         return -1;
@@ -114,6 +122,7 @@ RC IndexManager::insertEntry(FileHandle &fileHandle, const Attribute &attribute,
     
     
     Superblock sb = Superblock(fileHandle);
+    
     if (!sb.init) {
         //Create new node: root = true,
         Node newRoot = Node(fileHandle, sb.nextPage, LeafNode, attribute.type);
@@ -124,6 +133,11 @@ RC IndexManager::insertEntry(FileHandle &fileHandle, const Attribute &attribute,
             int target = 0;
             memcpy(&target, key, 4);
             addToLeafNode(newRoot, target, rid, 0, false, false);
+            
+            sb.N = target;
+            sb.M = target;
+            
+            
         }
         else if(attribute.type == TypeReal){
             
@@ -149,6 +163,14 @@ RC IndexManager::insertEntry(FileHandle &fileHandle, const Attribute &attribute,
             int target = 0;
             memcpy(&target, key, 4);
             
+            if (target < sb.N) {
+                sb.N = target;
+            }
+            if (target > sb.M) {
+                sb.N = target;
+            }
+            sb.writeSuperblock();
+            
             SearchResult sr = search(target, fileHandle);
             
             Node cntNode = Node(fileHandle, sr.trackList[sr.trackList.size()-1], LeafNode, attribute.type);
@@ -162,7 +184,7 @@ RC IndexManager::insertEntry(FileHandle &fileHandle, const Attribute &attribute,
             
         }
         else if(attribute.type == TypeReal){
-            
+            //TODO: for real and varchar set the keystore values
         }
         else{
             //Search with Varchar
@@ -193,7 +215,196 @@ RC IndexManager::scan(FileHandle &fileHandle,
     bool        	highKeyInclusive,
     IX_ScanIterator &ix_ScanIterator)
 {
-	return -1;
+    Superblock sb = Superblock(fileHandle);
+    if (!sb.init) {
+        IX_PrintError(1);
+        return 1;
+    }
+    
+    ix_ScanIterator.onOverFlow = false;
+    ix_ScanIterator.cntOver = 0;
+    ix_ScanIterator.lAlloc = false;
+    ix_ScanIterator.hAlloc = false;
+    ix_ScanIterator.all = false;
+    ix_ScanIterator.search = true;
+    ix_ScanIterator.lowinc = lowKeyInclusive;
+    ix_ScanIterator.highinc = highKeyInclusive;
+    ix_ScanIterator.attr = attribute;
+    
+    if (lowKey != NULL) {
+        ix_ScanIterator.lAlloc = true;
+        if(attribute.type == TypeInt){
+            memcpy(&ix_ScanIterator.intLKey, lowKey, 4);
+        }
+        else if(attribute.type == TypeReal){
+            memcpy(&ix_ScanIterator.floatLKey, lowKey, 4);
+        }
+        else{
+            unsigned int length = 0;
+            memcpy(&length, lowKey, 4);
+            char * temp = (char *) malloc(length + 1);
+            temp[length] = NULL;
+            string temp2 (temp);
+            ix_ScanIterator.stringLKey = temp2;
+            free(temp);
+        }
+    }
+    if (highKey != NULL) {
+        ix_ScanIterator.hAlloc = true;
+        if(attribute.type == TypeInt){
+            memcpy(&ix_ScanIterator.intHKey, highKey, 4);
+        }
+        else if(attribute.type == TypeReal){
+            memcpy(&ix_ScanIterator.floatHKey, highKey, 4);
+        }
+        else{
+            unsigned int length = 0;
+            memcpy(&length, highKey, 4);
+            char * temp = (char *) malloc(length + 1);
+            temp[length] = NULL;
+            string temp2 (temp);
+            ix_ScanIterator.stringHKey = temp2;
+            free(temp);
+        }
+    }
+    if (ix_ScanIterator.lAlloc == false && ix_ScanIterator.hAlloc == false) {
+        ix_ScanIterator.all = true; //Means return all elements in index
+        //Set custom range
+        if(attribute.type == TypeInt){
+            ix_ScanIterator.intLKey = sb.N;
+            ix_ScanIterator.intHKey = sb.M;
+            
+            
+        }
+        else if (attribute.type == TypeReal || attribute.type == TypeVarChar){
+            KeyStore ks = KeyStore(fileHandle);
+            ks.read();
+            ix_ScanIterator.floatLKey = ks.floatLKey;
+            ix_ScanIterator.floatHKey = ks.floatHKey;
+            ix_ScanIterator.stringLKey = ks.stringLKey;
+            ix_ScanIterator.stringHKey = ks.stringHKey;
+            
+            
+        }
+        return 0;
+    }
+    
+    if (lowKey == NULL) {
+        //Set start page to beginning page with index 0
+        SearchResult sr = search(sb.N, fileHandle);
+        ix_ScanIterator.cntLeaf = sr.pageNumber;
+        ix_ScanIterator.cntIndex = 0;
+        return 0;
+    }
+    
+    //Find starting page number
+    if(attribute.type == TypeInt){
+        if (lowKeyInclusive) {
+            SearchResult sr = search(ix_ScanIterator.intLKey, fileHandle);
+            //Iterate until you find the first key bigger than or equal to lowKey
+            Node cntNode = Node(fileHandle, sr.pageNumber, LeafNode, TypeInt);
+            cntNode.readNode();
+            bool hit = false;
+            for (int i = 0 ; i < cntNode.intKeys.size(); i++) {
+                //If i's key >= ix's low key then hit is true
+                //Record this index and pageNumber as starting point
+                //Set search to true
+                if (cntNode.intKeys[i] >= ix_ScanIterator.intLKey) {
+                    ix_ScanIterator.cntLeaf = cntNode.pageNum;
+                    ix_ScanIterator.cntIndex = i;
+                    ix_ScanIterator.search = true;
+                    return 0;
+                }
+            }
+            while (cntNode.nextPage != 0 && hit == false) {
+                cntNode = Node(fileHandle, cntNode.nextPage, LeafNode, TypeInt);
+                cntNode.readNode();
+                for (int i = 0 ; i < cntNode.intKeys.size(); i++) {
+                    //If i's key >= ix's low key then hit is true
+                    //Record this index and pageNumber as starting point
+                    //Set search to true
+                    if (cntNode.intKeys[i] >= ix_ScanIterator.intLKey) {
+                        ix_ScanIterator.cntLeaf = cntNode.pageNum;
+                        ix_ScanIterator.cntIndex = i;
+                        ix_ScanIterator.search = true;
+                        return 0;
+                    }
+                }
+            
+            
+            }
+            //If it reaches here then set search to false, there is no valid range to search on
+            ix_ScanIterator.search = false;
+            return 0;
+        }
+        else{
+            //Must be strictly greater than lowKey
+            SearchResult sr = search(ix_ScanIterator.intLKey, fileHandle);
+            //Iterate until you find the first key bigger than or equal to lowKey
+            Node cntNode = Node(fileHandle, sr.pageNumber, LeafNode, TypeInt);
+            cntNode.readNode();
+            bool hit = false;
+            for (int i = 0 ; i < cntNode.intKeys.size(); i++) {
+                //If i's key >= ix's low key then hit is true
+                //Record this index and pageNumber as starting point
+                //Set search to true
+                if (cntNode.intKeys[i] > ix_ScanIterator.intLKey) {
+                    ix_ScanIterator.cntLeaf = cntNode.pageNum;
+                    ix_ScanIterator.cntIndex = i;
+                    ix_ScanIterator.search = true;
+                    return 0;
+                }
+            }
+            while (cntNode.nextPage != 0 && hit == false) {
+                cntNode = Node(fileHandle, cntNode.nextPage, LeafNode, TypeInt);
+                cntNode.readNode();
+                for (int i = 0 ; i < cntNode.intKeys.size(); i++) {
+                    //If i's key >= ix's low key then hit is true
+                    //Record this index and pageNumber as starting point
+                    //Set search to true
+                    if (cntNode.intKeys[i] > ix_ScanIterator.intLKey) {
+                        ix_ScanIterator.cntLeaf = cntNode.pageNum;
+                        ix_ScanIterator.cntIndex = i;
+                        ix_ScanIterator.search = true;
+                        return 0;
+                    }
+                }
+                
+                
+            }
+            //If it reaches here then set search to false, there is no valid range to search on
+            ix_ScanIterator.search = false;
+            return 0;
+        
+        }
+    }
+    else if(attribute.type == TypeReal){
+        if (lowKeyInclusive) {
+            SearchResult sr = search(ix_ScanIterator.intLKey, fileHandle);
+            //Iterate until you find the first key bigger than
+        }
+        else{
+            
+        }
+        
+    }
+    else{
+        if (lowKeyInclusive) {
+            SearchResult sr = search(ix_ScanIterator.intLKey, fileHandle);
+            //Iterate until you find the first key bigger than
+        }
+        else{
+            
+        }
+        
+        
+    }
+    
+    
+    
+    
+    
+	return 0;
 }
 
 void IndexManager::update(FileHandle &fileHandle, vector<unsigned int> trackList, Node &tempNode){
@@ -605,9 +816,210 @@ IX_ScanIterator::~IX_ScanIterator()
 
 RC IX_ScanIterator::getNextEntry(RID &rid, void *key)
 {
+    
+    if (!search) {
+        //Range is invalid, exiting scan
+        IX_PrintError(2);
+        return -1;
+    }
+    
+        //If onOverFlow
+        if (onOverFlow) {
+            //Keep scanning overflow elements
+            //OverElements have already been checked against conditions,
+            //So just keep returning rids and same key
+            //Read in current OverFlow node
+            Node overNode = Node(*fH, cntOver, LeafNode, attr.type);
+            overNode.readNode();
+            if (overIndex < overNode.numOfKeys) {
+                //Return the next key
+                if (attr.type == TypeInt) {
+                    memcpy(key, &overNode.intKeys[overIndex], 4);
+                }
+                else if (attr.type == TypeReal){
+                    memcpy(key, &overNode.floatKeys[overIndex], 4);
+
+                }
+                else{
+                    memcpy(key, overNode.varcharKeys[overIndex].c_str(), overNode.varcharKeys[overIndex].length()-1);
+
+                    
+                }
+                rid.pageNum = overNode.rids[overIndex].pageNum;
+                rid.slotNum = overNode.rids[overIndex].slotNum;
+                overIndex++;
+                return 0;
+            }
+            else{
+                //If there is another overFlow page read it in and repeat (we assume there is at least one key on the page)
+                if (overNode.nextPage != 0) {
+                    overNode = Node(*fH, overNode.nextPage, OverFlow, attr.type);
+                    overNode.readNode();
+                    overIndex = 0; //1 because we're about to read 0 right now
+                    cntOver = overNode.pageNum;
+                    //Return the next key
+                    if (attr.type == TypeInt) {
+                        memcpy(key, &overNode.intKeys[overIndex], 4);
+                    }
+                    else if (attr.type == TypeReal){
+                        memcpy(key, &overNode.floatKeys[overIndex], 4);
+                        
+                    }
+                    else{
+                        memcpy(key, overNode.varcharKeys[overIndex].c_str(), overNode.varcharKeys[overIndex].length()-1);
+                        
+                        
+                    }
+                    rid.pageNum = overNode.rids[overIndex].pageNum;
+                    rid.slotNum = overNode.rids[overIndex].slotNum;
+                    overIndex++;
+                    return 0;
+
+                }
+                //Else read in the next leaf value and reset overflow settings
+                else{
+                    cntIndex++;
+                    onOverFlow = false;
+                    if (!hasNext()) {
+                        return -1;
+                    }
+                    //Hasnext barrier gurantees the cntLeaf and cntIndex to have a valid node, return it and increment
+                    Node cntNode = Node(*fH, cntLeaf, LeafNode, attr.type);
+                    cntNode.readNode();
+                    //Return the key
+                    if (attr.type == TypeInt) {
+                        memcpy(key, &cntNode.intKeys[cntIndex], 4);
+                    }
+                    else if (attr.type == TypeReal){
+                        memcpy(key, &cntNode.floatKeys[cntIndex], 4);
+                        
+                    }
+                    else{
+                        memcpy(key, cntNode.varcharKeys[cntIndex].c_str(), cntNode.varcharKeys[cntIndex].length()-1);
+                        
+                        
+                    }
+                    rid.pageNum = cntNode.rids[cntIndex].pageNum;
+                    rid.slotNum = cntNode.rids[cntIndex].slotNum;
+                    
+                    if (cntNode.overflows[cntIndex] != 0) {
+                        //Reset overflow settings and true them
+                        overIndex = 0;
+                        cntOver = cntNode.overflows[cntIndex];
+                        onOverFlow = true;
+                        return 0;
+                    }
+                    overIndex = 0;
+                    onOverFlow = false;
+                    cntIndex++;
+                    return 0;
+                }
+            }
+        }
+        else{
+            //Keep looking for regular elements
+            //Hasnext gurantees there's another entry on the cntLeaf at cntIndex
+            if (!hasNext()) {
+                return -1;
+            }
+            Node cntNode = Node(*fH, cntLeaf, LeafNode, attr.type);
+            cntNode.readNode();
+            //Return the key
+            if (attr.type == TypeInt) {
+                memcpy(key, &cntNode.intKeys[cntIndex], 4);
+            }
+            else if (attr.type == TypeReal){
+                memcpy(key, &cntNode.floatKeys[cntIndex], 4);
+                
+            }
+            else{
+                memcpy(key, cntNode.varcharKeys[cntIndex].c_str(), cntNode.varcharKeys[cntIndex].length()-1);
+                
+                
+            }
+            rid.pageNum = cntNode.rids[cntIndex].pageNum;
+            rid.slotNum = cntNode.rids[cntIndex].slotNum;
+            
+            if (cntNode.overflows[cntIndex] != 0) {
+                //Reset overflow settings and true them
+                overIndex = 0;
+                cntOver = cntNode.overflows[cntIndex];
+                onOverFlow = true;
+                return 0;
+            }
+            overIndex = 0;
+            onOverFlow = false;
+            cntIndex++;
+            return 0;
+            
+        }
+    
+    
+    
 	return -1;
 }
-
+bool IX_ScanIterator::hasNext(){
+    //If it's on an overflow page then it will always return true
+    if (onOverFlow) {
+        return true;
+    }
+    //Check the next leafNode entry if it satisfy's the condition
+    Node cntNode = Node(*fH, cntLeaf, LeafNode, attr.type);
+    cntNode.readNode();
+    if (cntIndex >= cntNode.numOfKeys && cntNode.nextPage == 0) {
+        return false;
+    }
+    if (cntIndex >= cntNode.numOfKeys) {
+        //Read in next Page
+        cntLeaf = cntNode.nextPage;
+        cntIndex = 0;
+        cntNode = Node(*fH, cntLeaf, LeafNode, attr.type);
+        cntNode.readNode();
+    }
+    if (attr.type == TypeInt) {
+        if (highinc) {
+            if (cntNode.intKeys[cntIndex] <= intHKey) {
+                return true;
+            }
+        }
+        else{
+            if (cntNode.intKeys[cntIndex] < intHKey) {
+                return true;
+            }
+            
+        }
+    }
+    else if (attr.type == TypeReal){
+        if (highinc) {
+            if (cntNode.floatKeys[cntIndex] <= floatHKey) {
+                return true;
+            }
+        }
+        else{
+            if (cntNode.floatKeys[cntIndex] < floatHKey) {
+                return true;
+            }
+            
+        }
+        
+    }
+    else{
+        if (highinc) {
+            if (cntNode.varcharKeys[cntIndex].compare(stringHKey) <= 0) {
+                return true;
+            }
+        }
+        else{
+            if (cntNode.varcharKeys[cntIndex].compare(stringHKey) < 0) {
+                return true;
+            }
+            
+        }
+        
+    }
+    
+    return false;
+}
 RC IX_ScanIterator::close()
 {
 	return -1;
@@ -617,10 +1029,10 @@ void IX_PrintError (RC rc)
 {
     switch (rc) {
         case 1:
-            fputs("Searching on Invalid Index", stderr);
+            fputs("Trying to Iterate over unintialized Index (NO VALUES)", stderr);
             break;
         case 2:
-            fputs("Searching on Invalid Index", stderr);
+            fputs("Trying to Iterate over invalid range", stderr);
             break;
         case 3:
             fputs("Searching on Invalid Index", stderr);

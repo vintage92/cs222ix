@@ -26,6 +26,21 @@ typedef struct{
     
 } SearchResult;
 
+class KeyStore {
+    
+    
+public:
+    FileHandle * fH;
+    float floatLKey;
+    float floatHKey;
+    string stringLKey;
+    string stringHKey;
+    
+    KeyStore(FileHandle &fileHandle);
+    void read();
+    void write();
+};
+
 typedef enum { InnerNode = 0, LeafNode, OverFlow } NodeType;
 
 class Superblock{
@@ -33,8 +48,8 @@ public:
     int init;
     unsigned int root;
     unsigned int nextPage;
-    unsigned int N;
-    unsigned int M;
+    unsigned int N; //Minimum int key
+    unsigned int M; //Maximum int key
     AttrType keyType;
     unsigned int freeSpace;
     unsigned int freePageCount;
@@ -54,7 +69,7 @@ public:
     
     FileHandle* fH;
     
-    unsigned int isRoot; //0 menas it isnt, 1 means it is
+    unsigned int isRoot; //0 means it isnt, 1 means it is
     NodeType type;
     unsigned int pageNum; //Not in mem map
     unsigned int numOfKeys;
