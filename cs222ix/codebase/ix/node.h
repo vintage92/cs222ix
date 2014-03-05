@@ -57,6 +57,7 @@ public:
     
     FileHandle * fH;
     
+    bool FileExists(const char * fileName);
     
     
     Superblock(FileHandle &fileHandle);

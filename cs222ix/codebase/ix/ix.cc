@@ -167,7 +167,7 @@ RC IndexManager::insertEntry(FileHandle &fileHandle, const Attribute &attribute,
                 sb.N = target;
             }
             if (target > sb.M) {
-                sb.N = target;
+                sb.M = target;
             }
             sb.writeSuperblock();
             
@@ -221,6 +221,7 @@ RC IndexManager::scan(FileHandle &fileHandle,
         return 1;
     }
     
+    ix_ScanIterator.fH = &fileHandle;
     ix_ScanIterator.onOverFlow = false;
     ix_ScanIterator.cntOver = 0;
     ix_ScanIterator.lAlloc = false;
@@ -286,12 +287,16 @@ RC IndexManager::scan(FileHandle &fileHandle,
             
             
         }
-        return 0;
+        
+    }
+    if (highKey == NULL) {
+        ix_ScanIterator.intHKey = sb.M;
     }
     
     if (lowKey == NULL) {
         //Set start page to beginning page with index 0
         SearchResult sr = search(sb.N, fileHandle);
+        ix_ScanIterator.intLKey = sb.N;
         ix_ScanIterator.cntLeaf = sr.pageNumber;
         ix_ScanIterator.cntIndex = 0;
         return 0;

@@ -69,7 +69,11 @@ void KeyStore::write(){
 
 Superblock::Superblock(FileHandle &fileHandle){
     //Read in values from SuperBlock page '0'
-    
+    //Check if file exists
+    if (!FileExists(fileHandle.fileName.c_str())) {
+        init = false;
+        return;
+    }
     fH = &fileHandle;
     
     char * data = (char *) malloc(PAGE_SIZE);
@@ -428,7 +432,13 @@ RC Node::writeNode(){
     return 0;
 }
 
-
+bool Superblock::FileExists(const char * fileName)
+{
+    std::ifstream ifile(fileName);
+    if(ifile)
+        return true;
+    else return false;
+}
 
 
 
