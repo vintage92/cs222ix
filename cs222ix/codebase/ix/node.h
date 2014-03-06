@@ -48,8 +48,8 @@ public:
     int init;
     unsigned int root;
     unsigned int nextPage;
-    unsigned int N; //Minimum int key
-    unsigned int M; //Maximum int key
+    int N; //Minimum int key
+    int M; //Maximum int key
     AttrType keyType;
     unsigned int freeSpace;
     unsigned int freePageCount;

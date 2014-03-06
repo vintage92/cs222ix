@@ -74,9 +74,9 @@ class IndexManager {
     
     
     //Different search methods for each type of key
-    SearchResult search(string key);
+    SearchResult search(string key, FileHandle &fileHandle);
     SearchResult search(int key, FileHandle &fileHandle);
-    SearchResult search(float key);
+    SearchResult search(float key, FileHandle &fileHandle);
     SearchResult treeSearch(string key, SearchResult sr);
     SearchResult treeSearch(int key, SearchResult sr);
     SearchResult treeSearch(float key, SearchResult sr);
