@@ -81,6 +81,9 @@ class IndexManager {
     SearchResult treeSearch(int key, SearchResult sr);
     SearchResult treeSearch(float key, SearchResult sr);
     
+    //Search for overflow Pages
+    SearchResult searchOver(int key, RID rid, unsigned int startPage, FileHandle &fileHandle, SearchResult sr);
+    
 };
 /*
  if (attr.type == TypeInt) {

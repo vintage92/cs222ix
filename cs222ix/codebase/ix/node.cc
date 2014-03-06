@@ -162,9 +162,8 @@ Node::Node(FileHandle &fileHandle, unsigned int pageNumber, NodeType theNodeType
     isRoot = 0;
     type = theNodeType;
     pageNum = pageNumber;
-    freeSpace = 4096 - 24;
+    modFlag = 0;
     keyType = theKeyType;
-    
     
     //Initialize values
     numOfKeys = 0;
@@ -211,7 +210,7 @@ RC Node::readNode(){
     offset += 4;
     
     //Read in amount of free space
-    memcpy(&freeSpace, data + offset, 4);
+    memcpy(&modFlag, data + offset, 4);
     offset += 4;
     
     //Read in nextPage value
@@ -355,7 +354,7 @@ RC Node::writeNode(){
     memcpy(data + offset, &keyType, 4);
     offset += 4;
     
-    memcpy(data + offset, &freeSpace, 4);
+    memcpy(data + offset, &modFlag, 4);
     offset += 4;
     
     memcpy(data + 4092, &nextPage, 4);

@@ -479,9 +479,9 @@ int testCase_7(const string &indexFileName, const Attribute &attribute)
     RID rid;
     FileHandle fileHandle;
     IX_ScanIterator ix_ScanIterator;
-    float compVal = 100.0;
+    int compVal = 100;
     unsigned numOfTuples = 100;
-    float key;
+    int key;
 
     // create index file
     rc = indexManager->createFile(indexFileName);
@@ -508,9 +508,9 @@ int testCase_7(const string &indexFileName, const Attribute &attribute)
     }
 
     // InsertEntry
-    for(unsigned i = 1; i <= numOfTuples; i++)
+    for(unsigned int i = 1; i <= numOfTuples; i++)
     {
-        key = (float)i;
+        key = i;
         rid.pageNum = i;
         rid.slotNum = i;
 
@@ -539,7 +539,7 @@ int testCase_7(const string &indexFileName, const Attribute &attribute)
     {
         cout << rid.pageNum << " " << rid.slotNum << endl;
 
-        float key = (float)rid.pageNum;
+        int key = (int)rid.pageNum;
         rc = indexManager->deleteEntry(fileHandle, attribute, &key, rid);
         if(rc != success)
         {
@@ -1774,7 +1774,7 @@ void test()
     testCase_4B(indexAgeFileName, attrAge);
     testCase_5(indexAgeFileName, attrAge);
     testCase_6(indexHeightFileName, attrHeight);
-    testCase_7(indexHeightFileName, attrHeight);
+    testCase_7(indexHeightFileName, attrAge);
     testCase_8(indexHeightFileName, attrHeight);
     testCase_9(indexAgeFileName, attrAge);
     testCase_10(indexHeightFileName, attrHeight);

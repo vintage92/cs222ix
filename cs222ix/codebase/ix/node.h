@@ -18,6 +18,7 @@
 using namespace std;
 
 typedef struct{
+    int index;
 	bool matchFound;
 	unsigned int pageNumber; //Of the leaf node that the match is found on, or to be inserted on
 	vector<unsigned int> trackList;
@@ -76,7 +77,7 @@ public:
     unsigned int numOfKeys;
     AttrType keyType;
     
-    unsigned int freeSpace;
+    unsigned int modFlag;
     
     
     vector<float> floatKeys;
