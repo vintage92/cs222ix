@@ -54,10 +54,17 @@ void KeyStore::write(){
     memcpy(data + offset, &floatHKey, 4);
     offset += 4;
     
-    memcpy(data + offset, stringLKey.c_str(), stringLKey.size() - 1);
-    offset += stringLKey.size() - 1;
-    memcpy(data + offset, stringHKey.c_str(), stringHKey.size() - 1);
-    offset += stringHKey.size() - 1;
+    unsigned int length = stringLKey.size();
+    memcpy(data + offset, &length, 4);
+    offset += 4;
+    memcpy(data + offset, stringLKey.c_str(), stringLKey.size());
+    offset += stringLKey.size();
+    
+    length = stringHKey.size();
+    memcpy(data + offset, &length, 4);
+    offset += 4;
+    memcpy(data + offset, stringHKey.c_str(), stringHKey.size());
+    offset += stringHKey.size();
     
     fH->writePage(1, data);
     free(data);
@@ -371,9 +378,12 @@ RC Node::writeNode(){
                 offset += 4;
             }
             else{//keyType is varchar
-                //Subtract one from length because of Null terminator at the end
-                memcpy(data + offset, varcharKeys[i].c_str(), varcharKeys[i].length() - 1);
-                offset += varcharKeys[i].length() - 1;
+                //Add length
+                unsigned int length = varcharKeys[i].size();
+                memcpy(data + offset, &length, 4);
+                offset += 4;
+                memcpy(data + offset, varcharKeys[i].c_str(), length);
+                offset += length;
                 
             }
         }//End key readin for loop
@@ -401,9 +411,12 @@ RC Node::writeNode(){
                 
             }
             else{//keyType is varchar
-                //Read in size of key
-                memcpy(data + offset, varcharKeys[i].c_str(), varcharKeys[i].length() - 1);
-                offset += varcharKeys[i].length() - 1;
+                //Add length
+                unsigned int length = varcharKeys[i].size();
+                memcpy(data + offset, &length, 4);
+                offset += 4;
+                memcpy(data + offset, varcharKeys[i].c_str(), length);
+                offset += length;
                 
             }
             

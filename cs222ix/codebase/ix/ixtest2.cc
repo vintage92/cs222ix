@@ -1627,7 +1627,7 @@ int testCase_extra_3(const string &indexFileName, const Attribute &attribute)
     unsigned count;
 
     //create index file
-    rc = indexManager->createFile(indexFileName);
+    rc = indexManager->createFile("mytestFile");
     if(rc == success)
     {
         cout << "Index Created!" << endl;
@@ -1639,7 +1639,7 @@ int testCase_extra_3(const string &indexFileName, const Attribute &attribute)
     }
 
     //open index file
-    rc = indexManager->openFile(indexFileName, fileHandle);
+    rc = indexManager->openFile("myTestFile", fileHandle);
     if(rc == success)
     {
         cout << "Index File Opened!" << endl;
@@ -1663,6 +1663,9 @@ int testCase_extra_3(const string &indexFileName, const Attribute &attribute)
 
         rid.pageNum = i;
         rid.slotNum = i;
+        if (i == 23) {
+            cout << "here" << endl;
+        }
 
         rc = indexManager->insertEntry(fileHandle, attribute, key, rid);
         if(rc != success)

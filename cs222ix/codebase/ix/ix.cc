@@ -122,6 +122,8 @@ RC IndexManager::insertEntry(FileHandle &fileHandle, const Attribute &attribute,
     
     
     Superblock sb = Superblock(fileHandle);
+    sb.keyType = attribute.type;
+    sb.writeSuperblock();
     
     if (!sb.init) {
         //Create new node: root = true,
@@ -148,6 +150,8 @@ RC IndexManager::insertEntry(FileHandle &fileHandle, const Attribute &attribute,
             ks.read();
             ks.floatLKey = target;
             ks.floatHKey = target;
+            ks.stringHKey = "MX";
+            ks.stringLKey = "MX";
             ks.write();
             
             
@@ -162,6 +166,7 @@ RC IndexManager::insertEntry(FileHandle &fileHandle, const Attribute &attribute,
             memcpy(temp2, temp + 4, length);
             temp2[length] = NULL;
             string target (temp2);
+            addToLeafNode(newRoot, target, rid, 0, false, false);
             
             KeyStore ks = KeyStore(fileHandle);
             ks.read();
@@ -345,6 +350,26 @@ RC IndexManager::scan(FileHandle &fileHandle,
             free(temp);
         }
     }
+    if (lowKey == NULL) {
+        //Set manually
+        if(attribute.type == TypeInt){
+            ix_ScanIterator.intLKey = sb.N;
+          
+        }
+        else if (attribute.type == TypeReal){
+            //TODO: Add search result sr
+            KeyStore ks = KeyStore(fileHandle);
+            ks.read();
+            ix_ScanIterator.floatLKey = ks.floatLKey;
+       
+        }
+        else{
+            //TODO: Add search result sr
+            KeyStore ks = KeyStore(fileHandle);
+            ks.read();
+            ix_ScanIterator.stringLKey = ks.stringLKey;
+        }
+    }
     if (highKey == NULL) {
         //Set manually
         if(attribute.type == TypeInt){
@@ -483,32 +508,174 @@ RC IndexManager::scan(FileHandle &fileHandle,
         }
     }
     else if(attribute.type == TypeReal){
+        
         if (lowKeyInclusive) {
-            SearchResult sr = search(ix_ScanIterator.intLKey, fileHandle);
-            //Iterate until you find the first key bigger than
+            SearchResult sr = search(ix_ScanIterator.floatLKey, fileHandle);
+            //Iterate until you find the first key bigger than or equal to lowKey
+            Node cntNode = Node(fileHandle, sr.pageNumber, LeafNode, TypeReal);
+            cntNode.readNode();
+            bool hit = false;
+            for (int i = 0 ; i < cntNode.floatKeys.size(); i++) {
+                //If i's key >= ix's low key then hit is true
+                //Record this index and pageNumber as starting point
+                //Set search to true
+                if (cntNode.floatKeys[i] >= ix_ScanIterator.floatLKey) {
+                    ix_ScanIterator.cntLeaf = cntNode.pageNum;
+                    ix_ScanIterator.cntIndex = i;
+                    ix_ScanIterator.search = true;
+                    return 0;
+                }
+            }
+            while (cntNode.nextPage != 0 && hit == false) {
+                cntNode = Node(fileHandle, cntNode.nextPage, LeafNode, TypeReal);
+                cntNode.readNode();
+                for (int i = 0 ; i < cntNode.floatKeys.size(); i++) {
+                    //If i's key >= ix's low key then hit is true
+                    //Record this index and pageNumber as starting point
+                    //Set search to true
+                    if (cntNode.floatKeys[i] >= ix_ScanIterator.floatLKey) {
+                        ix_ScanIterator.cntLeaf = cntNode.pageNum;
+                        ix_ScanIterator.cntIndex = i;
+                        ix_ScanIterator.search = true;
+                        return 0;
+                    }
+                }
+                
+                
+            }
+            //If it reaches here then set search to false, there is no valid range to search on
+            ix_ScanIterator.search = false;
+            return 0;
         }
         else{
+            //Must be strictly greater than lowKey
+            SearchResult sr = search(ix_ScanIterator.floatLKey, fileHandle);
+            //Iterate until you find the first key bigger than or equal to lowKey
+            Node cntNode = Node(fileHandle, sr.pageNumber, LeafNode, TypeReal);
+            cntNode.readNode();
+            bool hit = false;
+            for (int i = 0 ; i < cntNode.floatKeys.size(); i++) {
+                //If i's key >= ix's low key then hit is true
+                //Record this index and pageNumber as starting point
+                //Set search to true
+                if (cntNode.floatKeys[i] > ix_ScanIterator.floatLKey) {
+                    ix_ScanIterator.cntLeaf = cntNode.pageNum;
+                    ix_ScanIterator.cntIndex = i;
+                    ix_ScanIterator.search = true;
+                    return 0;
+                }
+            }
+            while (cntNode.nextPage != 0 && hit == false) {
+                cntNode = Node(fileHandle, cntNode.nextPage, LeafNode, TypeReal);
+                cntNode.readNode();
+                for (int i = 0 ; i < cntNode.floatKeys.size(); i++) {
+                    //If i's key >= ix's low key then hit is true
+                    //Record this index and pageNumber as starting point
+                    //Set search to true
+                    if (cntNode.floatKeys[i] > ix_ScanIterator.floatLKey) {
+                        ix_ScanIterator.cntLeaf = cntNode.pageNum;
+                        ix_ScanIterator.cntIndex = i;
+                        ix_ScanIterator.search = true;
+                        return 0;
+                    }
+                }
+                
+                
+            }
+            //If it reaches here then set search to false, there is no valid range to search on
+            ix_ScanIterator.search = false;
+            return 0;
             
         }
+
         
     }
     else{
+        
         if (lowKeyInclusive) {
-            SearchResult sr = search(ix_ScanIterator.intLKey, fileHandle);
-            //Iterate until you find the first key bigger than
+            SearchResult sr = search(ix_ScanIterator.stringLKey, fileHandle);
+            //Iterate until you find the first key bigger than or equal to lowKey
+            Node cntNode = Node(fileHandle, sr.pageNumber, LeafNode, TypeVarChar);
+            cntNode.readNode();
+            bool hit = false;
+            for (int i = 0 ; i < cntNode.varcharKeys.size(); i++) {
+                //If i's key >= ix's low key then hit is true
+                //Record this index and pageNumber as starting point
+                //Set search to true
+                if (cntNode.varcharKeys[i].compare(ix_ScanIterator.stringLKey) >= 0) {
+                    ix_ScanIterator.cntLeaf = cntNode.pageNum;
+                    ix_ScanIterator.cntIndex = i;
+                    ix_ScanIterator.search = true;
+                    return 0;
+                }
+            }
+            while (cntNode.nextPage != 0 && hit == false) {
+                cntNode = Node(fileHandle, cntNode.nextPage, LeafNode, TypeVarChar);
+                cntNode.readNode();
+                for (int i = 0 ; i < cntNode.varcharKeys.size(); i++) {
+                    //If i's key >= ix's low key then hit is true
+                    //Record this index and pageNumber as starting point
+                    //Set search to true
+                    if (cntNode.varcharKeys[i].compare(ix_ScanIterator.stringLKey) >= 0) {
+                        ix_ScanIterator.cntLeaf = cntNode.pageNum;
+                        ix_ScanIterator.cntIndex = i;
+                        ix_ScanIterator.search = true;
+                        return 0;
+                    }
+                }
+                
+                
+            }
+            //If it reaches here then set search to false, there is no valid range to search on
+            ix_ScanIterator.search = false;
+            return 0;
         }
         else{
+            //Must be strictly greater than lowKey
+            SearchResult sr = search(ix_ScanIterator.stringLKey, fileHandle);
+            //Iterate until you find the first key bigger than or equal to lowKey
+            Node cntNode = Node(fileHandle, sr.pageNumber, LeafNode, TypeVarChar);
+            cntNode.readNode();
+            bool hit = false;
+            for (int i = 0 ; i < cntNode.varcharKeys.size(); i++) {
+                //If i's key >= ix's low key then hit is true
+                //Record this index and pageNumber as starting point
+                //Set search to true
+                if (cntNode.varcharKeys[i].compare(ix_ScanIterator.stringLKey) > 0) {
+                    ix_ScanIterator.cntLeaf = cntNode.pageNum;
+                    ix_ScanIterator.cntIndex = i;
+                    ix_ScanIterator.search = true;
+                    return 0;
+                }
+            }
+            while (cntNode.nextPage != 0 && hit == false) {
+                cntNode = Node(fileHandle, cntNode.nextPage, LeafNode, TypeVarChar);
+                cntNode.readNode();
+                for (int i = 0 ; i < cntNode.varcharKeys.size(); i++) {
+                    //If i's key >= ix's low key then hit is true
+                    //Record this index and pageNumber as starting point
+                    //Set search to true
+                    if (cntNode.varcharKeys[i].compare(ix_ScanIterator.stringLKey) > 0) {
+                        ix_ScanIterator.cntLeaf = cntNode.pageNum;
+                        ix_ScanIterator.cntIndex = i;
+                        ix_ScanIterator.search = true;
+                        return 0;
+                    }
+                }
+                
+                
+            }
+            //If it reaches here then set search to false, there is no valid range to search on
+            ix_ScanIterator.search = false;
+            return 0;
             
         }
+
         
         
     }
     
-    
-    
-    
-    
-	return 0;
+    	return 0;
 }
 
 void IndexManager::update(FileHandle &fileHandle, vector<unsigned int> trackList, Node &tempNode){
