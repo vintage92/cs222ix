@@ -361,7 +361,7 @@ RC IndexManager::deleteEntry(FileHandle &fileHandle, const Attribute &attribute,
             //No entry exists with that key and rid
         }
         SearchResult beginsr;
-        SearchResult oversr = searchOver(target, rid, cntNode.overflows[index], fileHandle, beginsr);
+        SearchResult oversr = searchOver(rid, cntNode.overflows[index], fileHandle, beginsr);
         if (oversr.matchFound == false) {
             return -1;
         }
@@ -395,9 +395,216 @@ RC IndexManager::deleteEntry(FileHandle &fileHandle, const Attribute &attribute,
         
     }
     else if (attribute.type == TypeReal){
+        float target = 0.0;
+        memcpy(&target, key, 4);
+        SearchResult sr = search(target, fileHandle);
+        if (!sr.matchFound) {
+            //Must be a valid key entry
+            return -1;
+        }
+        
+        unsigned int PageNumber = sr.trackList[sr.trackList.size()-1];
+        Node cntNode = Node(fileHandle, PageNumber, LeafNode, attribute.type);
+        cntNode.readNode();
+        int index = 0;
+        
+        for(int i=0;i<cntNode.numOfKeys;i++)
+        {
+            if(target==cntNode.floatKeys[i]){
+                //cout << "search Key is found at location " << i << endl;
+                index = i;
+                break;
+            }
+            
+        }
+        
+        if (cntNode.rids[index].pageNum == rid.pageNum && cntNode.rids[index].slotNum == rid.slotNum ) {
+            if (cntNode.overflows[index] == 0) {
+                //Erase and return
+                cntNode.floatKeys.erase(cntNode.floatKeys.begin()+index);
+                cntNode.rids.erase(cntNode.rids.begin()+index);
+                cntNode.overflows.erase(cntNode.overflows.begin()+index);
+                cntNode.numOfKeys = cntNode.floatKeys.size();
+                cntNode.modFlag = 1;
+                cntNode.writeNode();
+                return 0;
+            }
+            //Else we need to pick the nextNode from the overflow page, erase it, and copy it here
+            Node overPage = Node(fileHandle, cntNode.overflows[index], OverFlow, attribute.type);
+            overPage.readNode();
+            cntNode.rids[index] = overPage.rids[0];
+            //Erase from source
+            overPage.floatKeys.erase(overPage.floatKeys.begin());
+            overPage.rids.erase(overPage.rids.begin());
+            overPage.numOfKeys = overPage.floatKeys.size();
+            //If the overPage is empty and it doesn't have a nextPage
+            if (overPage.numOfKeys == 0 && overPage.nextPage == 0) {
+                cntNode.overflows[index] = 0;
+                cntNode.modFlag = 1;
+                cntNode.writeNode();
+                return 0;
+            }
+            if (overPage.numOfKeys == 0 && overPage.nextPage != 0) {
+                cntNode.overflows[index] = overPage.nextPage;
+                cntNode.modFlag = 1;
+                cntNode.writeNode();
+                return 0;
+            }
+            //Otherwise update nodes and return
+            cntNode.modFlag = 1;
+            cntNode.writeNode();
+            overPage.writeNode();
+            
+            return 0;
+            
+        }
+        //Else search overflow pages above state must return if true
+        if (cntNode.overflows[index]==0) {
+            return -1;
+            //No entry exists with that key and rid
+        }
+        SearchResult beginsr;
+        SearchResult oversr = searchOver(rid, cntNode.overflows[index], fileHandle, beginsr);
+        if (oversr.matchFound == false) {
+            return -1;
+        }
+        //Prepare to remove the entry from the overflow page
+        Node overNode = Node(fileHandle, oversr.pageNumber, OverFlow, TypeReal);
+        overNode.readNode();
+        overNode.floatKeys.erase(overNode.floatKeys.begin() + oversr.index);
+        overNode.rids.erase(overNode.rids.begin() + oversr.index);
+        overNode.numOfKeys = overNode.floatKeys.size();
+        if (overNode.floatKeys.size() != 0) {
+            //Return normally after writing nodes
+            overNode.modFlag = 1;
+            cntNode.writeNode();
+            overNode.writeNode();
+            return 0;
+        }
+        //Else we need to check conditions for rerouting overflow pages
+        if (oversr.trackList.size() > 1) {
+            //Reroute A - B.0
+            Node Aover = Node(fileHandle, oversr.trackList[oversr.trackList.size()-2], OverFlow, TypeReal);
+            Aover.nextPage = overNode.nextPage;
+            Aover.writeNode();
+            cntNode.writeNode();
+            return 0;
+        }
+        //Else we reroute cntNode's ptr
+        cntNode.overflows[index] = overNode.nextPage;
+        cntNode.writeNode();
+        return 0;
+        
         
     }
     else{
+        //Read in key
+        unsigned int length = 0;
+        memcpy(&length, key, 4);
+        char * temp = (char *) malloc(length + 5);
+        memcpy(temp, key, length + 4);
+        char * temp2 = (char *) malloc(length + 1);
+        memcpy(temp2, temp + 4, length);
+        temp2[length] = NULL;
+        string target (temp2);
+        
+        SearchResult sr = search(target, fileHandle);
+        if (!sr.matchFound) {
+            //Must be a valid key entry
+            return -1;
+        }
+        
+        unsigned int PageNumber = sr.trackList[sr.trackList.size()-1];
+        Node cntNode = Node(fileHandle, PageNumber, LeafNode, attribute.type);
+        cntNode.readNode();
+        int index = 0;
+        
+        for(int i=0;i<cntNode.numOfKeys;i++)
+        {
+            if(target.compare(cntNode.varcharKeys[i]) == 0){
+                //cout << "search Key is found at location " << i << endl;
+                index = i;
+                break;
+            }
+            
+        }
+        
+        if (cntNode.rids[index].pageNum == rid.pageNum && cntNode.rids[index].slotNum == rid.slotNum ) {
+            if (cntNode.overflows[index] == 0) {
+                //Erase and return
+                cntNode.varcharKeys.erase(cntNode.varcharKeys.begin()+index);
+                cntNode.rids.erase(cntNode.rids.begin()+index);
+                cntNode.overflows.erase(cntNode.overflows.begin()+index);
+                cntNode.numOfKeys = cntNode.varcharKeys.size();
+                cntNode.modFlag = 1;
+                cntNode.writeNode();
+                return 0;
+            }
+            //Else we need to pick the nextNode from the overflow page, erase it, and copy it here
+            Node overPage = Node(fileHandle, cntNode.overflows[index], OverFlow, attribute.type);
+            overPage.readNode();
+            cntNode.rids[index] = overPage.rids[0];
+            //Erase from source
+            overPage.varcharKeys.erase(overPage.varcharKeys.begin());
+            overPage.rids.erase(overPage.rids.begin());
+            overPage.numOfKeys = overPage.varcharKeys.size();
+            //If the overPage is empty and it doesn't have a nextPage
+            if (overPage.numOfKeys == 0 && overPage.nextPage == 0) {
+                cntNode.overflows[index] = 0;
+                cntNode.modFlag = 1;
+                cntNode.writeNode();
+                return 0;
+            }
+            if (overPage.numOfKeys == 0 && overPage.nextPage != 0) {
+                cntNode.overflows[index] = overPage.nextPage;
+                cntNode.modFlag = 1;
+                cntNode.writeNode();
+                return 0;
+            }
+            //Otherwise update nodes and return
+            cntNode.modFlag = 1;
+            cntNode.writeNode();
+            overPage.writeNode();
+            
+            return 0;
+            
+        }
+        //Else search overflow pages above state must return if true
+        if (cntNode.overflows[index]==0) {
+            return -1;
+            //No entry exists with that key and rid
+        }
+        SearchResult beginsr;
+        SearchResult oversr = searchOver(rid, cntNode.overflows[index], fileHandle, beginsr);
+        if (oversr.matchFound == false) {
+            return -1;
+        }
+        //Prepare to remove the entry from the overflow page
+        Node overNode = Node(fileHandle, oversr.pageNumber, OverFlow, TypeVarChar);
+        overNode.readNode();
+        overNode.varcharKeys.erase(overNode.varcharKeys.begin() + oversr.index);
+        overNode.rids.erase(overNode.rids.begin() + oversr.index);
+        overNode.numOfKeys = overNode.varcharKeys.size();
+        if (overNode.varcharKeys.size() != 0) {
+            //Return normally after writing nodes
+            overNode.modFlag = 1;
+            cntNode.writeNode();
+            overNode.writeNode();
+            return 0;
+        }
+        //Else we need to check conditions for rerouting overflow pages
+        if (oversr.trackList.size() > 1) {
+            //Reroute A - B.0
+            Node Aover = Node(fileHandle, oversr.trackList[oversr.trackList.size()-2], OverFlow, TypeVarChar);
+            Aover.nextPage = overNode.nextPage;
+            Aover.writeNode();
+            cntNode.writeNode();
+            return 0;
+        }
+        //Else we reroute cntNode's ptr
+        cntNode.overflows[index] = overNode.nextPage;
+        cntNode.writeNode();
+        return 0;
         
     }
     
@@ -1682,7 +1889,7 @@ SearchResult IndexManager::treeSearch(float key, SearchResult sr){
     return sr;
 }
 
-SearchResult IndexManager::searchOver(int key, RID rid, unsigned int startPage, FileHandle &fileHandle, SearchResult sr){
+SearchResult IndexManager::searchOver(RID rid, unsigned int startPage, FileHandle &fileHandle, SearchResult sr){
     SearchResult cntsr = sr;
     cntsr.trackList.push_back(startPage);
     if (startPage == 0) {
@@ -1703,7 +1910,7 @@ SearchResult IndexManager::searchOver(int key, RID rid, unsigned int startPage, 
     }
     //Otherwise return searchOver nextPage
     
-    return searchOver(key, rid, overPage.nextPage, fileHandle, cntsr);
+    return searchOver(rid, overPage.nextPage, fileHandle, cntsr);
 }
 
 IX_ScanIterator::IX_ScanIterator()
