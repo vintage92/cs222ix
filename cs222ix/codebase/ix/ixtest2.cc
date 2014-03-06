@@ -479,9 +479,9 @@ int testCase_7(const string &indexFileName, const Attribute &attribute)
     RID rid;
     FileHandle fileHandle;
     IX_ScanIterator ix_ScanIterator;
-    int compVal = 100;
+    float compVal = 100.0;
     unsigned numOfTuples = 100;
-    int key;
+    float key;
 
     // create index file
     rc = indexManager->createFile(indexFileName);
@@ -508,9 +508,9 @@ int testCase_7(const string &indexFileName, const Attribute &attribute)
     }
 
     // InsertEntry
-    for(unsigned int i = 1; i <= numOfTuples; i++)
+    for(unsigned i = 1; i <= numOfTuples; i++)
     {
-        key = i;
+        key = (float)i;
         rid.pageNum = i;
         rid.slotNum = i;
 
@@ -539,7 +539,7 @@ int testCase_7(const string &indexFileName, const Attribute &attribute)
     {
         cout << rid.pageNum << " " << rid.slotNum << endl;
 
-        int key = (int)rid.pageNum;
+        float key = (float)rid.pageNum;
         rc = indexManager->deleteEntry(fileHandle, attribute, &key, rid);
         if(rc != success)
         {
@@ -1627,7 +1627,7 @@ int testCase_extra_3(const string &indexFileName, const Attribute &attribute)
     unsigned count;
 
     //create index file
-    rc = indexManager->createFile("mytestFile");
+    rc = indexManager->createFile(indexFileName);
     if(rc == success)
     {
         cout << "Index Created!" << endl;
@@ -1639,7 +1639,7 @@ int testCase_extra_3(const string &indexFileName, const Attribute &attribute)
     }
 
     //open index file
-    rc = indexManager->openFile("myTestFile", fileHandle);
+    rc = indexManager->openFile(indexFileName, fileHandle);
     if(rc == success)
     {
         cout << "Index File Opened!" << endl;
@@ -1663,9 +1663,6 @@ int testCase_extra_3(const string &indexFileName, const Attribute &attribute)
 
         rid.pageNum = i;
         rid.slotNum = i;
-        if (i == 23) {
-            cout << "here" << endl;
-        }
 
         rc = indexManager->insertEntry(fileHandle, attribute, key, rid);
         if(rc != success)
@@ -1774,7 +1771,7 @@ void test()
     testCase_4B(indexAgeFileName, attrAge);
     testCase_5(indexAgeFileName, attrAge);
     testCase_6(indexHeightFileName, attrHeight);
-    testCase_7(indexHeightFileName, attrAge);
+    testCase_7(indexHeightFileName, attrHeight);
     testCase_8(indexHeightFileName, attrHeight);
     testCase_9(indexAgeFileName, attrAge);
     testCase_10(indexHeightFileName, attrHeight);
